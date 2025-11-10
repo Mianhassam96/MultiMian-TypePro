@@ -37,6 +37,7 @@ Check out a live demo [here](#)
 1. **Clone the repository**
 ```bash
 git clone https://github.com/Mianhassam96/MultiMian-TypePro.git
+
 🖱️ Usage
 
 Start typing the text displayed.
@@ -46,7 +47,6 @@ Watch WPM and accuracy update in real-time.
 Practice regularly to improve your speed and accuracy.
 
 🤝 Contributing
-
 Contributions are welcome! Feel free to submit issues or pull requests for:
 
 Bug fixes
@@ -56,12 +56,9 @@ UI/UX improvements
 New features
 
 📄 License
-
-This project is licensed under the MIT License – see the LICENSE
- file for details.
+This project is licensed under the MIT License – see the LICENSE file for details.
 
 📬 Contact
-
 Made with ❤️ by Mian Hassam
 
 GitHub: Mianhassam96
