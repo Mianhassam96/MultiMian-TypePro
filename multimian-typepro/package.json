@@ -49,6 +49,7 @@
     ]
   },
   "devDependencies": {
+    "gh-pages": "^6.3.0",
     "workbox-webpack-plugin": "^7.3.0"
   }
 }
