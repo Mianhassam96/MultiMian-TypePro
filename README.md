@@ -79,40 +79,6 @@ A modern, AI-powered typing test application built with React that revolutionize
 2. See how you rank against other users
 3. Aim for the top spots!
 
-## 🏗️ Project Structure
-
-```
-multimian-typepro/
-├── public/
-│   ├── index.html
-│   ├── manifest.json
-│   └── favicon.ico
-├── src/
-│   ├── components/
-│   │   ├── Analytics.js
-│   │   ├── InstallButton.js
-│   │   ├── Leaderboard.js
-│   │   ├── Navigation.js
-│   │   ├── ParticleBackground.js
-│   │   ├── Results.js
-│   │   ├── ThemeToggle.js
-│   │   └── TypingTest.js
-│   ├── contexts/
-│   │   └── ThemeContext.js
-│   ├── pages/
-│   │   ├── AnalyticsPage.js
-│   │   ├── Home.js
-│   │   ├── LeaderboardPage.js
-│   │   └── TestPage.js
-│   ├── services/
-│   │   └── apiService.js
-│   ├── App.js
-│   ├── index.js
-│   └── setupTests.js
-├── package.json
-└── README.md
-```
-
 ## 🛠️ Technologies Used
 
 ### Frontend Framework
