@@ -1,16 +1,7 @@
-  "devDependencies": {
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.17"
->>>>>>> 6ea2fa8d0c2cf787655523f203db78918cba2e78
-  }
-}
-=======
 {
   "name": "multimian-typepro",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://mianhassam96.github.io/MultiMian-TypePro",
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
@@ -24,6 +15,7 @@
     "react": "^19.2.0",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.0",
+    "react-router-dom": "^7.9.5",
     "react-scripts": "5.0.1",
     "react-toastify": "^11.0.5",
     "recharts": "^3.3.0",
@@ -34,9 +26,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -57,19 +47,6 @@
     ]
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.21",
-    "gh-pages": "^6.1.1",
-    "postcss": "^8.5.6",
-    "react-router-dom": "^7.9.5",
-    "tailwindcss": "^4.1.17",
     "workbox-webpack-plugin": "^7.3.0"
-  }
-}
-=======
-  "devDependencies": {
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.17"
->>>>>>> 6ea2fa8d0c2cf787655523f203db78918cba2e78
   }
 }
