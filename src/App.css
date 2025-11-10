@@ -1,0 +1,229 @@
+/* MultiMian TypePro - Phase 5 UI Polish & Branding */
+
+/* Gradient Background - MultiMian Banner Theme */
+body {
+  background: linear-gradient(135deg,
+    #667eea 0%,
+    #764ba2 25%,
+    #f093fb 50%,
+    #f5576c 75%,
+    #4facfe 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  min-height: 100vh;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes typingSound {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-typing {
+  animation: typingSound 0.1s ease-in-out;
+}
+
+/* Keyboard sound effects */
+.typing-key {
+  transition: all 0.1s ease;
+}
+
+.typing-key.active {
+  background-color: rgba(59, 130, 246, 0.2);
+  transform: scale(0.95);
+}
+
+/* Vibration effect for mobile */
+@keyframes vibrate {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  50% { transform: translateX(2px); }
+  75% { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+
+.vibrate {
+  animation: vibrate 0.3s ease-in-out;
+}
+
+/* Enhanced progress bar animations */
+.progress-bar-animated {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-animated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.5);
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.1);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.3);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.5);
+}
+
+/* Result share image styles */
+.share-image {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 16px;
+  padding: 32px;
+  color: white;
+  font-family: 'Arial', sans-serif;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.share-image .logo {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.share-image .stats {
+  display: flex;
+  justify-content: space-around;
+  margin: 24px 0;
+}
+
+.share-image .stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.share-image .stat-value {
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.share-image .stat-label {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Footer enhancements */
+.footer-enhanced {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+.footer-enhanced .social-links {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.footer-enhanced .social-link {
+  color: rgba(255,255,255,0.8);
+  transition: all 0.3s ease;
+  padding: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+}
+
+.footer-enhanced .social-link:hover {
+  color: white;
+  background: rgba(255,255,255,0.2);
+  transform: translateY(-2px);
+}
+
+/* Enhanced card shadows and borders */
+.card-enhanced {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+.dark .card-enhanced {
+  background: rgba(0,0,0,0.8);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Typing sound visualization */
+.sound-wave {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.sound-wave .bar {
+  width: 4px;
+  background: #3b82f6;
+  border-radius: 2px;
+  animation: soundWave 0.5s ease-in-out infinite alternate;
+}
+
+.sound-wave .bar:nth-child(1) { animation-delay: 0s; height: 8px; }
+.sound-wave .bar:nth-child(2) { animation-delay: 0.1s; height: 12px; }
+.sound-wave .bar:nth-child(3) { animation-delay: 0.2s; height: 16px; }
+.sound-wave .bar:nth-child(4) { animation-delay: 0.3s; height: 12px; }
+.sound-wave .bar:nth-child(5) { animation-delay: 0.4s; height: 8px; }
+
+@keyframes soundWave {
+  from { height: 4px; }
+  to { height: 20px; }
+}
