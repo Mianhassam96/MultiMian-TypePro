@@ -1,62 +1,205 @@
-MultiMian TypePro 🖋️
+# ⚡ MultiMian TypePro
 
-MultiMian TypePro is an advanced typing speed and accuracy testing tool designed to help users improve their typing skills interactively. Track your performance, challenge yourself, and watch your typing grow with real-time feedback and smooth animations.
+A modern, AI-powered typing test application built with React that revolutionizes the way you learn to type. Experience immersive typing practice with real-time analytics, customizable themes, sound effects, and comprehensive progress tracking.
 
-✨ Features
+![MultiMian TypePro](https://img.shields.io/badge/React-19.2.0-blue) ![License](https://img.shields.io/badge/License-MIT-green) ![GitHub Pages](https://img.shields.io/badge/Live%20Demo-Deployed-success)
 
-Real-Time Typing Analysis – Track Words Per Minute (WPM), accuracy, and mistakes live.
+## 🌟 Live Demo
 
-Customizable Tests – Choose different text lengths and difficulty levels.
+🚀 **[Try MultiMian TypePro Live](https://mianhassam96.github.io/MultiMian-TypePro/)**
 
-Rolling Text Counting Animation – Dynamic animation shows your progress.
+## ✨ Features
 
-Performance History – Save and compare your results over time.
+### 🎯 Core Functionality
+- **Real-time Typing Tests**: Practice with various text samples and difficulty levels
+- **WPM & Accuracy Tracking**: Monitor your typing speed and precision in real-time
+- **Progress Analytics**: Comprehensive dashboard with detailed statistics and charts
+- **Leaderboard System**: Compete with other users and track your ranking
 
-Responsive & Stylish UI – Works perfectly on all devices.
+### 🎨 User Experience
+- **Dark/Light Theme Toggle**: Seamless switching between themes with persistent preferences
+- **Particle Background**: Beautiful animated particle effects that adapt to your theme
+- **Sound Effects**: Immersive audio feedback with customizable keyboard sounds
+- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
 
-🛠️ Tech Stack
+### 🤖 AI-Powered Insights
+- **Personalized Recommendations**: AI-driven suggestions to improve your typing patterns
+- **Performance Analysis**: Detailed breakdown of your strengths and areas for improvement
+- **Progress Visualization**: Interactive charts showing your improvement over time
 
-HTML, CSS, SCSS, JavaScript
+### 🛠️ Technical Features
+- **Progressive Web App (PWA)**: Installable on mobile devices and works offline
+- **Modern React Architecture**: Built with React 19, React Router, and Context API
+- **Smooth Animations**: Powered by Framer Motion for fluid user interactions
+- **Data Visualization**: Charts and graphs using Chart.js and Recharts
 
-CSS & JavaScript animations
+## 🚀 Quick Start
 
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn
 
+### Installation
 
-⚡ Installation
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Mianhassam96/MultiMian-TypePro.git
+   cd MultiMian-TypePro
+   ```
 
-Clone the repository:
-git clone https://github.com/Mianhassam96/MultiMian-TypePro.git
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-Open index.html in your browser.
+3. **Start the development server**
+   ```bash
+   npm start
+   ```
 
-Optional: Use a local server for testing (e.g., VS Code Live Server or python -m http.server).
+4. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
-🖱️ Usage
+## 📖 Usage
 
-Start typing the text displayed.
+### Taking a Typing Test
+1. Navigate to the "Test" page
+2. Select your preferred difficulty level
+3. Start typing the displayed text
+4. Monitor your WPM and accuracy in real-time
+5. View detailed results upon completion
 
-Watch WPM and accuracy update in real-time.
+### Viewing Analytics
+1. Go to the "Analytics" page
+2. Explore your typing statistics and progress charts
+3. Review AI-powered insights and recommendations
 
-Practice regularly to improve your speed and accuracy.
+### Competing on Leaderboard
+1. Visit the "Leaderboard" page
+2. See how you rank against other users
+3. Aim for the top spots!
 
-🤝 Contributing
+## 🏗️ Project Structure
 
-Contributions are welcome! Feel free to submit issues or pull requests for:
+```
+multimian-typepro/
+├── public/
+│   ├── index.html
+│   ├── manifest.json
+│   └── favicon.ico
+├── src/
+│   ├── components/
+│   │   ├── Analytics.js
+│   │   ├── InstallButton.js
+│   │   ├── Leaderboard.js
+│   │   ├── Navigation.js
+│   │   ├── ParticleBackground.js
+│   │   ├── Results.js
+│   │   ├── ThemeToggle.js
+│   │   └── TypingTest.js
+│   ├── contexts/
+│   │   └── ThemeContext.js
+│   ├── pages/
+│   │   ├── AnalyticsPage.js
+│   │   ├── Home.js
+│   │   ├── LeaderboardPage.js
+│   │   └── TestPage.js
+│   ├── services/
+│   │   └── apiService.js
+│   ├── App.js
+│   ├── index.js
+│   └── setupTests.js
+├── package.json
+└── README.md
+```
 
-Bug fixes
+## 🛠️ Technologies Used
 
-UI/UX improvements
+### Frontend Framework
+- **React 19.2.0** - Modern JavaScript library for building user interfaces
+- **React Router DOM** - Declarative routing for React applications
 
-New features
+### UI & Styling
+- **Tailwind CSS** - Utility-first CSS framework
+- **Framer Motion** - Production-ready motion library for React
+- **React Toastify** - Toast notifications
 
-📄 License
+### Data Visualization
+- **Chart.js** - Simple yet flexible JavaScript charting library
+- **React Chart.js 2** - React wrapper for Chart.js
+- **Recharts** - Composed charting library built on React components
 
-This project is licensed under the MIT License – see the LICENSE file for details.
+### Effects & Animations
+- **TSParticles** - Lightweight TypeScript library for creating particles
+- **@tsparticles/react** - React component for TSParticles
 
-📬 Contact
+### Development Tools
+- **Create React App** - Build setup and development server
+- **ESLint** - Pluggable JavaScript linter
+- **Workbox** - Set of libraries for Progressive Web Apps
 
-Made with ❤️ by Mian Hassam
+## 📱 Progressive Web App
 
-GitHub: Mianhassam96
+MultiMian TypePro is a fully functional PWA that can be installed on your device:
 
-Email: mhassamkb@gmail.com
+### Installation Steps
+1. Open the app in your browser
+2. Click the install button (available on supported browsers)
+3. Follow the installation prompts
+4. Launch from your device's home screen
+
+### PWA Features
+- **Offline Support**: Core functionality works without internet connection
+- **Fast Loading**: Cached resources for instant loading
+- **Native App Feel**: Installable and runs in its own window
+- **Push Notifications**: Stay updated with new features (coming soon)
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Development Guidelines
+- Follow the existing code style
+- Write meaningful commit messages
+- Test your changes thoroughly
+- Update documentation as needed
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Create React App** for the excellent project setup
+- **Tailwind CSS** for the utility-first CSS framework
+- **Framer Motion** for smooth animations
+- **Chart.js** for data visualization
+- **TSParticles** for particle effects
+
+## 📞 Contact
+
+**Mian Hassam**
+- Email: mianhassam96@gmail.com
+- GitHub: [@Mianhassam96](https://github.com/Mianhassam96)
+- LinkedIn: [Mian Hassam](https://linkedin.com/in/mianhassam)
+
+## 🔄 Recent Updates
+
+- ✨ Added AI-powered typing insights
+- 🎨 Implemented dark/light theme toggle
+- 🎵 Integrated sound effects
+- 📊 Enhanced analytics dashboard
+- 🏆 Added leaderboard system
+- 🌟 Improved particle background animations
+- 📱 Optimized for mobile devices
+- 🚀 Deployed to GitHub Pages
+
+---
+
+**Made with ❤️ by [Mian Hassam](https://github.com/Mianhassam96)**
