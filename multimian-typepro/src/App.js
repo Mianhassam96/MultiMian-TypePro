@@ -18,7 +18,7 @@ function AppContent() {
   const { theme } = useTheme();
 
   return (
-    <Router>
+    <Router basename="/MultiMian-TypePro">
       <div className="min-h-screen">
         <ParticleBackground theme={theme} />
         <Navigation />
