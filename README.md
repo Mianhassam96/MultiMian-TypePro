@@ -35,10 +35,6 @@ A modern, AI-powered typing test application built with React that revolutionize
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- Node.js (v16 or higher)
-- npm or yarn
-
 ### Installation
 
 1. **Clone the repository**
