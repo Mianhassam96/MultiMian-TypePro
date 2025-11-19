@@ -136,14 +136,6 @@ We welcome contributions! Please follow these steps:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
-
-- **Create React App** for the excellent project setup
-- **Tailwind CSS** for the utility-first CSS framework
-- **Framer Motion** for smooth animations
-- **Chart.js** for data visualization
-- **TSParticles** for particle effects
-
 ## 📞 Contact
 
 **Mian Hassam**
