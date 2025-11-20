@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import AnimatedCounter from '../components/AnimatedCounter';
 
 const Home = () => {
   return (
@@ -77,19 +78,27 @@ const Home = () => {
           className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6"
         >
           <div className="text-center">
-            <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">1000+</div>
+            <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+              <AnimatedCounter end={1000} suffix="+" />
+            </div>
             <div className="text-gray-600 dark:text-gray-400">Tests Taken</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">500+</div>
+            <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+              <AnimatedCounter end={500} suffix="+" />
+            </div>
             <div className="text-gray-600 dark:text-gray-400">Active Users</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-green-600 dark:text-green-400">95%</div>
+            <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+              <AnimatedCounter end={95} suffix="%" />
+            </div>
             <div className="text-gray-600 dark:text-gray-400">Avg Accuracy</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">60</div>
+            <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+              <AnimatedCounter end={60} />
+            </div>
             <div className="text-gray-600 dark:text-gray-400">Avg WPM</div>
           </div>
         </motion.div>

@@ -18,6 +18,7 @@ const TypingTest = ({ onTestComplete }) => {
 
   const [currentLevel, setCurrentLevel] = useState('hard'); // default to hard
   const [currentTimeMode, setCurrentTimeMode] = useState('60s'); // default to 60s
+  const [customTime, setCustomTime] = useState(''); // for custom time input
   const [text, setText] = useState(texts['hard'][0]); // default text
   const [userInput, setUserInput] = useState('');
   const [startTime, setStartTime] = useState(null);
@@ -34,11 +35,28 @@ const TypingTest = ({ onTestComplete }) => {
     setCurrentTimeMode(mode);
     setTimeLeft(timeLimits[mode]);
     setUserInput('');
-    setStartTime(null);
+    setStartTime(Date.now()); // Start timer immediately when time mode is selected
     setWpm(0);
     setAccuracy(100);
     setIsFinished(false);
     inputRef.current.focus();
+  };
+
+  const handleCustomTimeSubmit = () => {
+    const customSeconds = parseInt(customTime);
+    if (customSeconds && customSeconds > 0 && customSeconds <= 3600) { // max 1 hour
+      setCurrentTimeMode(`${customSeconds}s`);
+      setTimeLeft(customSeconds);
+      setUserInput('');
+      setStartTime(Date.now()); // Start timer immediately
+      setWpm(0);
+      setAccuracy(100);
+      setIsFinished(false);
+      setCustomTime(''); // Clear input
+      inputRef.current.focus();
+    } else {
+      alert('Please enter a valid time between 1 and 3600 seconds.');
+    }
   };
 
   useEffect(() => {
@@ -304,6 +322,23 @@ const TypingTest = ({ onTestComplete }) => {
             }`}
           >
             120s
+          </button>
+        </div>
+        <div className="mt-4 flex justify-center items-center space-x-2">
+          <input
+            type="number"
+            value={customTime}
+            onChange={(e) => setCustomTime(e.target.value)}
+            placeholder="Custom seconds (1-3600)"
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-purple-500 transition-all duration-200"
+            min="1"
+            max="3600"
+          />
+          <button
+            onClick={handleCustomTimeSubmit}
+            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-500 dark:focus:ring-purple-500"
+          >
+            Start Custom
           </button>
         </div>
       </div>
