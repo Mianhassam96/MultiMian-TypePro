@@ -102,19 +102,6 @@ A modern, AI-powered typing test application built with React that revolutionize
 
 ## 📱 Progressive Web App
 
-MultiMian TypePro is a fully functional PWA that can be installed on your device:
-
-### Installation Steps
-1. Open the app in your browser
-2. Click the install button (available on supported browsers)
-3. Follow the installation prompts
-4. Launch from your device's home screen
-
-### PWA Features
-- **Offline Support**: Core functionality works without internet connection
-- **Fast Loading**: Cached resources for instant loading
-- **Native App Feel**: Installable and runs in its own window
-- **Push Notifications**: Stay updated with new features (coming soon)
 
 ## 🤝 Contributing
 
