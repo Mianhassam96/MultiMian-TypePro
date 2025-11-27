@@ -16,6 +16,7 @@
     "react": "^19.2.0",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.0",
+    "react-router-dom": "^7.9.5",
     "react-scripts": "5.0.1",
     "react-toastify": "^11.0.5",
     "recharts": "^3.3.0",
@@ -50,9 +51,10 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
+    "eslint": "^8.54.0",
     "gh-pages": "^6.1.1",
     "postcss": "^8.5.6",
-    "react-router-dom": "^7.9.5",
+    "prettier": "^3.1.0",
     "tailwindcss": "^4.1.17",
     "workbox-webpack-plugin": "^7.3.0"
   }
