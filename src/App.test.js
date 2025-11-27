@@ -1,8 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renders navigation component', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  // The app should render successfully with Router wrapper
+  expect(screen.getByRole('main')).toBeInTheDocument();
+});
+
+test('app renders without crashing', () => {
+  const { container } = render(<App />);
+  expect(container).toBeInTheDocument();
 });
