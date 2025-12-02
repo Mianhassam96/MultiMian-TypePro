@@ -2,7 +2,6 @@
 
 A modern, AI-powered typing test application built with React that revolutionizes the way you learn to type. Experience immersive typing practice with real-time analytics, customizable themes, sound effects, and comprehensive progress tracking.
 
-![MultiMian TypePro](https://img.shields.io/badge/React-19.2.0-blue) ![License](https://img.shields.io/badge/License-MIT-green) ![GitHub Pages](https://img.shields.io/badge/Live%20Demo-Deployed-success)
 
 ## 🌟 Live Demo
 
@@ -74,33 +73,6 @@ A modern, AI-powered typing test application built with React that revolutionize
 1. Visit the "Leaderboard" page
 2. See how you rank against other users
 3. Aim for the top spots!
-
-## 🛠️ Technologies Used
-
-### Frontend Framework
-- **React 19.2.0** - Modern JavaScript library for building user interfaces
-- **React Router DOM** - Declarative routing for React applications
-
-### UI & Styling
-- **Tailwind CSS** - Utility-first CSS framework
-- **Framer Motion** - Production-ready motion library for React
-- **React Toastify** - Toast notifications
-
-### Data Visualization
-- **Chart.js** - Simple yet flexible JavaScript charting library
-- **React Chart.js 2** - React wrapper for Chart.js
-- **Recharts** - Composed charting library built on React components
-
-### Effects & Animations
-- **TSParticles** - Lightweight TypeScript library for creating particles
-- **@tsparticles/react** - React component for TSParticles
-
-### Development Tools
-- **Create React App** - Build setup and development server
-- **ESLint** - Pluggable JavaScript linter
-- **Workbox** - Set of libraries for Progressive Web Apps
-
-## 📱 Progressive Web App
 
 
 ## 🤝 Contributing
