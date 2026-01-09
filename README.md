@@ -102,16 +102,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - GitHub: [@Mianhassam96](https://github.com/Mianhassam96)
 - LinkedIn: [Mian Hassam](https://linkedin.com/in/mianhassam)
 
-## 🔄 Recent Updates
-
-- ✨ Added AI-powered typing insights
-- 🎨 Implemented dark/light theme toggle
-- 🎵 Integrated sound effects
-- 📊 Enhanced analytics dashboard
-- 🏆 Added leaderboard system
-- 🌟 Improved particle background animations
-- 📱 Optimized for mobile devices
-- 🚀 Deployed to GitHub Pages
 
 ---
 
