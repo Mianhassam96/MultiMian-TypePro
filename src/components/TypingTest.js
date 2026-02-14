@@ -18,6 +18,8 @@ const TypingTest = ({ onTestComplete }) => {
 
   const [currentLevel, setCurrentLevel] = useState('hard'); // default to hard
   const [currentTimeMode, setCurrentTimeMode] = useState('60s'); // default to 60s
+  const [customTime, setCustomTime] = useState('');
+  const [showCustomTimer, setShowCustomTimer] = useState(false);
   const [text, setText] = useState(texts['hard'][0]); // default text
   const [userInput, setUserInput] = useState('');
   const [startTime, setStartTime] = useState(null);
@@ -33,12 +35,30 @@ const TypingTest = ({ onTestComplete }) => {
   const changeTimeMode = (mode) => {
     setCurrentTimeMode(mode);
     setTimeLeft(timeLimits[mode]);
+    setShowCustomTimer(false);
     setUserInput('');
     setStartTime(null);
     setWpm(0);
     setAccuracy(100);
     setIsFinished(false);
     inputRef.current.focus();
+  };
+
+  const setCustomTimer = () => {
+    const time = parseInt(customTime);
+    if (time && time > 0 && time <= 600) {
+      setCurrentTimeMode(`${time}s`);
+      setTimeLeft(time);
+      setShowCustomTimer(false);
+      setUserInput('');
+      setStartTime(null);
+      setWpm(0);
+      setAccuracy(100);
+      setIsFinished(false);
+      inputRef.current.focus();
+    } else {
+      alert('Please enter a valid time between 1 and 600 seconds');
+    }
   };
 
   useEffect(() => {
@@ -305,7 +325,42 @@ const TypingTest = ({ onTestComplete }) => {
           >
             120s
           </button>
+          <button
+            onClick={() => setShowCustomTimer(!showCustomTimer)}
+            className={`px-3 py-2 rounded-lg font-semibold transition-all duration-200 ${
+              showCustomTimer
+                ? 'bg-purple-500 text-white shadow-lg'
+                : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600'
+            }`}
+          >
+            ⏱️ Custom
+          </button>
         </div>
+        
+        {showCustomTimer && (
+          <div className="mt-4 flex justify-center items-center space-x-2 animate-fade-in">
+            <input
+              type="number"
+              min="1"
+              max="600"
+              value={customTime}
+              onChange={(e) => setCustomTime(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  setCustomTimer();
+                }
+              }}
+              placeholder="Enter seconds (1-600)"
+              className="px-4 py-2 border-2 border-purple-300 dark:border-purple-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-200 w-48"
+            />
+            <button
+              onClick={setCustomTimer}
+              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+            >
+              Set Timer
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -339,14 +394,14 @@ const TypingTest = ({ onTestComplete }) => {
           <p className="text-center text-gray-600 dark:text-gray-300 text-sm font-medium">Accuracy</p>
         </div>
 
-        <div className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 to-orange-900/20 p-4 rounded-xl border border-red-200 dark:border-red-800 hover:shadow-lg transition-shadow duration-300">
+        <div className="bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 to-yellow-900/20 p-4 rounded-xl border border-orange-200 dark:border-orange-800 hover:shadow-lg transition-shadow duration-300">
           <div className="flex items-center justify-center mb-2">
-            <svg className="w-6 h-6 text-red-600 dark:text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            <svg className="w-6 h-6 text-orange-600 dark:text-orange-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="text-xl font-bold text-red-600 dark:text-red-400">{errorCount}</span>
+            <span className="text-xl font-bold text-orange-600 dark:text-orange-400">{timeLeft}s</span>
           </div>
-          <p className="text-center text-gray-600 dark:text-gray-300 text-sm font-medium">Errors</p>
+          <p className="text-center text-gray-600 dark:text-gray-300 text-sm font-medium">Time Left</p>
         </div>
       </div>
 
