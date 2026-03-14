@@ -1,217 +1,172 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Area, AreaChart } from 'recharts';
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  const d = payload[0].payload;
+  return (
+    <div className="bg-gray-900/95 border border-white/10 rounded-xl p-3 shadow-2xl text-sm">
+      <p className="text-white font-semibold mb-1">Test #{label}</p>
+      {payload.map((p, i) => (
+        <p key={i} style={{ color: p.color }} className="font-medium">
+          {p.name}: {p.value}{p.name === 'accuracy' ? '%' : ''}
+        </p>
+      ))}
+      {d.level && <p className="text-gray-500 text-xs mt-1">{d.level} · {d.timeMode}</p>}
+    </div>
+  );
+};
 
 const Analytics = () => {
-  const [testHistory, setTestHistory] = useState([]);
-  const [stats, setStats] = useState({
-    totalTests: 0,
-    averageWpm: 0,
-    bestWpm: 0,
-    averageAccuracy: 0,
-    improvement: 0
-  });
+  const [history, setHistory] = useState([]);
+  const [stats,   setStats]   = useState({ total: 0, avgWpm: 0, bestWpm: 0, avgAcc: 0, improvement: 0 });
 
   useEffect(() => {
-    const storedHistory = JSON.parse(localStorage.getItem('typingTestHistory') || '[]');
-    setTestHistory(storedHistory);
-
-    if (storedHistory.length > 0) {
-      const totalTests = storedHistory.length;
-      const averageWpm = Math.round(storedHistory.reduce((sum, test) => sum + test.wpm, 0) / totalTests);
-      const bestWpm = Math.max(...storedHistory.map(test => test.wpm));
-      const averageAccuracy = Math.round(storedHistory.reduce((sum, test) => sum + test.accuracy, 0) / totalTests);
-
-      // Calculate improvement (difference between first and last test)
-      const firstTest = storedHistory[0].wpm;
-      const lastTest = storedHistory[storedHistory.length - 1].wpm;
-      const improvement = lastTest - firstTest;
-
-      setStats({
-        totalTests,
-        averageWpm,
-        bestWpm,
-        averageAccuracy,
-        improvement
-      });
+    const h = JSON.parse(localStorage.getItem('typingTestHistory') || '[]');
+    setHistory(h);
+    if (h.length > 0) {
+      const total   = h.length;
+      const avgWpm  = Math.round(h.reduce((s, t) => s + t.wpm, 0) / total);
+      const bestWpm = Math.max(...h.map((t) => t.wpm));
+      const avgAcc  = Math.round(h.reduce((s, t) => s + t.accuracy, 0) / total);
+      const improvement = h[h.length - 1].wpm - h[0].wpm;
+      setStats({ total, avgWpm, bestWpm, avgAcc, improvement });
     }
   }, []);
 
-  const formatDate = (timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const chartData = testHistory.map((test, index) => ({
-    test: index + 1,
-    wpm: test.wpm,
-    accuracy: test.accuracy,
-    date: formatDate(test.timestamp),
-    level: test.level,
-    timeMode: test.timeMode
+  const chartData = history.map((t, i) => ({
+    test: i + 1,
+    wpm: t.wpm,
+    accuracy: t.accuracy,
+    level: t.level,
+    timeMode: t.timeMode,
   }));
 
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-white dark:bg-gray-800 p-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg">
-          <p className="text-gray-900 dark:text-white font-semibold">{`Test #${label}`}</p>
-          <p className="text-blue-600 dark:text-blue-400">{`WPM: ${data.wpm}`}</p>
-          <p className="text-green-600 dark:text-green-400">{`Accuracy: ${data.accuracy}%`}</p>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">{`Level: ${data.level}`}</p>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">{`Time: ${data.timeMode}`}</p>
-          <p className="text-gray-500 dark:text-gray-500 text-xs">{data.date}</p>
-        </div>
-      );
-    }
-    return null;
-  };
+  const STAT_CARDS = [
+    { label: 'Total Tests',   value: stats.total,   color: 'text-violet-400', icon: '📝', bg: 'from-violet-500/10 to-purple-500/10', border: 'border-violet-500/20' },
+    { label: 'Avg WPM',       value: stats.avgWpm,  color: 'text-blue-400',   icon: '⚡', bg: 'from-blue-500/10 to-cyan-500/10',     border: 'border-blue-500/20'   },
+    { label: 'Best WPM',      value: stats.bestWpm, color: 'text-amber-400',  icon: '🏆', bg: 'from-amber-500/10 to-orange-500/10',  border: 'border-amber-500/20'  },
+    { label: 'Avg Accuracy',  value: `${stats.avgAcc}%`, color: 'text-emerald-400', icon: '🎯', bg: 'from-emerald-500/10 to-teal-500/10', border: 'border-emerald-500/20' },
+    {
+      label: 'Improvement',
+      value: `${stats.improvement >= 0 ? '+' : ''}${stats.improvement}`,
+      color: stats.improvement >= 0 ? 'text-emerald-400' : 'text-red-400',
+      icon: stats.improvement >= 0 ? '📈' : '📉',
+      bg: stats.improvement >= 0 ? 'from-emerald-500/10 to-teal-500/10' : 'from-red-500/10 to-pink-500/10',
+      border: stats.improvement >= 0 ? 'border-emerald-500/20' : 'border-red-500/20',
+    },
+  ];
+
+  const gridStyle = { stroke: 'rgba(255,255,255,0.05)' };
+  const axisStyle = { fill: '#6b7280', fontSize: 11 };
 
   return (
-    <div className="max-w-6xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl dark:shadow-purple-500/20 backdrop-blur-sm border border-gray-200 dark:border-gray-700">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-teal-600 dark:from-green-400 to-teal-400 bg-clip-text text-transparent mb-2">
-          📊 Analytics Dashboard 📊
-        </h1>
-        <p className="text-gray-600 dark:text-gray-300 text-lg">
-          Track Your Typing Progress Over Time
-        </p>
-      </div>
+    <div className="max-w-5xl mx-auto animate-fade-up">
+      <div className="rounded-3xl overflow-hidden bg-white/5 border border-white/10 backdrop-blur">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 p-8 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-black/10" />
+          <div className="relative z-10">
+            <div className="text-5xl mb-2 animate-float">📊</div>
+            <h1 className="text-3xl font-black text-white">Analytics Dashboard</h1>
+            <p className="text-emerald-100 mt-1">Track your typing journey over time</p>
+          </div>
+        </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 to-indigo-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-800">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.totalTests}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Total Tests</div>
+        <div className="p-6">
+          {/* Stat cards */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
+            {STAT_CARDS.map((s, i) => (
+              <div key={i} className={`p-4 rounded-2xl bg-gradient-to-br ${s.bg} border ${s.border} text-center card-lift animate-fade-up delay-${(i+1)*100}`}>
+                <div className="text-2xl mb-1">{s.icon}</div>
+                <div className={`text-2xl font-black tabular-nums ${s.color}`}>{s.value}</div>
+                <div className="text-gray-400 text-xs mt-0.5 font-medium">{s.label}</div>
+              </div>
+            ))}
           </div>
-        </div>
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 to-emerald-900/20 p-4 rounded-xl border border-green-200 dark:border-green-800">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.averageWpm}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Avg WPM</div>
-          </div>
-        </div>
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 to-pink-900/20 p-4 rounded-xl border border-purple-200 dark:border-purple-800">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.bestWpm}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Best WPM</div>
-          </div>
-        </div>
-        <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 to-red-900/20 p-4 rounded-xl border border-orange-200 dark:border-orange-800">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.averageAccuracy}%</div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Avg Accuracy</div>
-          </div>
-        </div>
-        <div className={`p-4 rounded-xl border ${stats.improvement >= 0 ? 'bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 to-green-900/20 border-emerald-200 dark:border-emerald-800' : 'bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 to-pink-900/20 border-red-200 dark:border-red-800'}`}>
-          <div className="text-center">
-            <div className={`text-2xl font-bold ${stats.improvement >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-              {stats.improvement >= 0 ? '+' : ''}{stats.improvement}
+
+          {chartData.length > 0 ? (
+            <div className="space-y-6">
+              {/* WPM Area Chart */}
+              <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
+                <h2 className="text-white font-bold text-lg mb-4">⚡ WPM Progress</h2>
+                <ResponsiveContainer width="100%" height={240}>
+                  <AreaChart data={chartData}>
+                    <defs>
+                      <linearGradient id="wpmGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%"  stopColor="#8b5cf6" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}   />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" {...gridStyle} />
+                    <XAxis dataKey="test" tick={axisStyle} />
+                    <YAxis tick={axisStyle} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Area type="monotone" dataKey="wpm" name="wpm" stroke="#8b5cf6" strokeWidth={2.5} fill="url(#wpmGrad)" dot={{ fill: '#8b5cf6', r: 4 }} activeDot={{ r: 6 }} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Accuracy Bar Chart */}
+              <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
+                <h2 className="text-white font-bold text-lg mb-4">🎯 Accuracy Progress</h2>
+                <ResponsiveContainer width="100%" height={240}>
+                  <BarChart data={chartData}>
+                    <defs>
+                      <linearGradient id="accGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%"   stopColor="#10b981" />
+                        <stop offset="100%" stopColor="#059669" />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" {...gridStyle} />
+                    <XAxis dataKey="test" tick={axisStyle} />
+                    <YAxis domain={[0, 100]} tick={axisStyle} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Bar dataKey="accuracy" name="accuracy" fill="url(#accGrad)" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Improvement</div>
-          </div>
+          ) : (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4 animate-float">📈</div>
+              <p className="text-gray-300 text-xl font-bold">No data yet</p>
+              <p className="text-gray-500 mt-2">Complete some tests to see your analytics here!</p>
+            </div>
+          )}
+
+          {/* Recent tests table */}
+          {history.length > 0 && (
+            <div className="mt-6">
+              <h2 className="text-white font-bold text-lg mb-3">Recent Tests</h2>
+              <div className="overflow-x-auto rounded-2xl border border-white/10">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-white/5 text-gray-400 text-left">
+                      {['Date', 'WPM', 'Accuracy', 'Level', 'Time'].map((h) => (
+                        <th key={h} className="px-4 py-3 font-semibold">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...history].reverse().slice(0, 10).map((t, i) => (
+                      <tr key={i} className="border-t border-white/5 hover:bg-white/5 transition-colors">
+                        <td className="px-4 py-3 text-gray-400 text-xs">
+                          {new Date(t.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </td>
+                        <td className="px-4 py-3 text-violet-400 font-bold">{t.wpm}</td>
+                        <td className="px-4 py-3 text-emerald-400 font-semibold">{t.accuracy}%</td>
+                        <td className="px-4 py-3 text-gray-300 capitalize">{t.level}</td>
+                        <td className="px-4 py-3 text-blue-400">{t.timeMode}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Charts */}
-      {chartData.length > 0 ? (
-        <div className="space-y-8">
-          {/* WPM Progress Chart */}
-          <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4 text-center">WPM Progress Over Time</h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis
-                  dataKey="test"
-                  stroke="#6B7280"
-                  tick={{ fill: '#6B7280' }}
-                />
-                <YAxis
-                  stroke="#6B7280"
-                  tick={{ fill: '#6B7280' }}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="wpm"
-                  stroke="#3B82F6"
-                  strokeWidth={3}
-                  dot={{ fill: '#3B82F6', strokeWidth: 2, r: 6 }}
-                  activeDot={{ r: 8, stroke: '#3B82F6', strokeWidth: 2 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Accuracy Chart */}
-          <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4 text-center">Accuracy Progress Over Time</h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis
-                  dataKey="test"
-                  stroke="#6B7280"
-                  tick={{ fill: '#6B7280' }}
-                />
-                <YAxis
-                  stroke="#6B7280"
-                  tick={{ fill: '#6B7280' }}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                <Bar
-                  dataKey="accuracy"
-                  fill="#10B981"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">📈</div>
-          <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">No Data Yet</h3>
-          <p className="text-gray-600 dark:text-gray-400">
-            Complete some typing tests to see your progress analytics here!
-          </p>
-        </div>
-      )}
-
-      {/* Recent Tests Table */}
-      {testHistory.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4 text-center">Recent Tests</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full table-auto">
-              <thead>
-                <tr className="bg-gray-50 dark:bg-gray-700">
-                  <th className="px-4 py-2 text-left text-gray-600 dark:text-gray-300">Date</th>
-                  <th className="px-4 py-2 text-left text-gray-600 dark:text-gray-300">WPM</th>
-                  <th className="px-4 py-2 text-left text-gray-600 dark:text-gray-300">Accuracy</th>
-                  <th className="px-4 py-2 text-left text-gray-600 dark:text-gray-300">Level</th>
-                  <th className="px-4 py-2 text-left text-gray-600 dark:text-gray-300">Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                {testHistory.slice(-10).reverse().map((test, index) => (
-                  <tr key={index} className="border-b border-gray-200 dark:border-gray-600">
-                    <td className="px-4 py-2 text-sm">{formatDate(test.timestamp)}</td>
-                    <td className="px-4 py-2 font-semibold text-blue-600 dark:text-blue-400">{test.wpm}</td>
-                    <td className="px-4 py-2 text-green-600 dark:text-green-400">{test.accuracy}%</td>
-                    <td className="px-4 py-2 capitalize">{test.level}</td>
-                    <td className="px-4 py-2">{test.timeMode}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -1,608 +1,457 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import apiService from '../services/apiService';
 
+const TEXTS = {
+  easy:   ["The cat sat on the mat. It was a sunny day. The cat was happy. I like to eat apples. Apples are red and green. They taste good. My dog is brown. He likes to run. We play in the park."],
+  medium: ["The quick brown fox jumps over the lazy dog. This is a classic typing test sentence. Programming is the process of creating instructions for computers to follow. It requires logical thinking. Technology has changed the way we live, work, and communicate with each other."],
+  hard:   ["In the realm of quantum computing, superposition and entanglement represent fundamental principles that challenge classical notions of information processing and computation. The juxtaposition of artificial intelligence with human creativity engenders profound philosophical inquiries regarding consciousness, ethics, and the future of innovation."],
+  expert: ["Epistemological paradigms shift dramatically when contemplating Gödel's incompleteness theorems, revealing inherent limitations in formal systems and mathematical consistency. Neuroplasticity facilitates synaptic pruning and dendritic arborization, enabling adaptive cognitive restructuring through experiential learning and environmental stimuli."],
+};
+
+const PRESETS = [
+  { label: '15s',  value: 15  },
+  { label: '30s',  value: 30  },
+  { label: '60s',  value: 60  },
+  { label: '120s', value: 120 },
+];
+
+const LEVELS = [
+  { key: 'easy',   label: 'Easy',   emoji: '🐣', color: 'from-emerald-500 to-green-500',   active: 'bg-emerald-500' },
+  { key: 'medium', label: 'Medium', emoji: '⚡', color: 'from-amber-500 to-yellow-500',    active: 'bg-amber-500'   },
+  { key: 'hard',   label: 'Hard',   emoji: '🏆', color: 'from-orange-500 to-red-500',      active: 'bg-orange-500'  },
+  { key: 'expert', label: 'Expert', emoji: '👑', color: 'from-violet-500 to-purple-600',   active: 'bg-violet-500'  },
+];
+
+// SVG circular timer ring
+const TimerRing = ({ timeLeft, totalTime }) => {
+  const radius = 44;
+  const circumference = 2 * Math.PI * radius;
+  const progress = totalTime > 0 ? timeLeft / totalTime : 1;
+  const offset = circumference * (1 - progress);
+  const isWarning = timeLeft <= 10 && timeLeft > 0;
+  const isDanger  = timeLeft <= 5  && timeLeft > 0;
+
+  const strokeColor = isDanger ? '#ef4444' : isWarning ? '#f59e0b' : '#8b5cf6';
+
+  return (
+    <div className={`relative flex items-center justify-center ${isWarning ? 'animate-pulse-ring' : ''}`}>
+      <svg width="100" height="100" className="transform -rotate-90">
+        <circle cx="50" cy="50" r={radius} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="6" />
+        <circle
+          cx="50" cy="50" r={radius}
+          fill="none"
+          stroke={strokeColor}
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.3s ease' }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className={`text-2xl font-black tabular-nums ${isDanger ? 'animate-timer-warn' : isWarning ? 'text-amber-400' : 'text-white'}`}>
+          {timeLeft}
+        </span>
+        <span className="text-gray-400 text-xs font-medium">sec</span>
+      </div>
+    </div>
+  );
+};
+
 const TypingTest = ({ onTestComplete }) => {
-  const texts = {
-    'easy': ["The cat sat on the mat. It was a sunny day. The cat was happy. I like to eat apples. Apples are red and green. They taste good. My dog is brown. He likes to run. We play in the park."],
-    'medium': ["The quick brown fox jumps over the lazy dog. This is a classic typing test sentence. Programming is the process of creating instructions for computers to follow. It requires logical thinking. Technology has changed the way we live, work, and communicate with each other."],
-    'hard': ["In the realm of quantum computing, superposition and entanglement represent fundamental principles that challenge classical notions of information processing and computation. The juxtaposition of artificial intelligence with human creativity engenders profound philosophical inquiries regarding consciousness, ethics, and the future of innovation. Cryptocurrency blockchain technology utilizes decentralized consensus mechanisms to ensure transparency, immutability, and security in digital financial transactions."],
-    'expert': ["Epistemological paradigms shift dramatically when contemplating Gödel's incompleteness theorems, revealing inherent limitations in formal systems and mathematical consistency. Neuroplasticity facilitates synaptic pruning and dendritic arborization, enabling adaptive cognitive restructuring through experiential learning and environmental stimuli. Cryptographic protocols employing elliptic curve cryptography provide robust security against quantum attacks via Shor's algorithm, ensuring post-quantum computational integrity."]
-  };
+  const [currentLevel,    setCurrentLevel]    = useState('hard');
+  const [currentTimeMode, setCurrentTimeMode] = useState('60s');
+  const [totalTime,       setTotalTime]       = useState(60);
+  const [text,            setText]            = useState(TEXTS['hard'][0]);
+  const [userInput,       setUserInput]       = useState('');
+  const [startTime,       setStartTime]       = useState(null);
+  const [wpm,             setWpm]             = useState(0);
+  const [cpm,             setCpm]             = useState(0);
+  const [accuracy,        setAccuracy]        = useState(100);
+  const [errorCount,      setErrorCount]      = useState(0);
+  const [timeLeft,        setTimeLeft]        = useState(60);
+  const [isFinished,      setIsFinished]      = useState(false);
+  const [isLoading,       setIsLoading]       = useState(false);
+  const [customTime,      setCustomTime]      = useState('');
+  const [showCustom,      setShowCustom]      = useState(false);
+  const [username,        setUsername]        = useState('');
+  const [saved,           setSaved]           = useState(false);
 
-  const timeLimits = {
-    '15s': 15,
-    '30s': 30,
-    '60s': 60,
-    '120s': 120
-  };
-
-  const [currentLevel, setCurrentLevel] = useState('hard'); // default to hard
-  const [currentTimeMode, setCurrentTimeMode] = useState('60s'); // default to 60s
-  const [customTime, setCustomTime] = useState('');
-  const [showCustomTimer, setShowCustomTimer] = useState(false);
-  const [text, setText] = useState(texts['hard'][0]); // default text
-  const [userInput, setUserInput] = useState('');
-  const [startTime, setStartTime] = useState(null);
-  const [wpm, setWpm] = useState(0);
-  const [cpm, setCpm] = useState(0);
-  const [accuracy, setAccuracy] = useState(100);
-  const [errorCount, setErrorCount] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(timeLimits['60s']);
-  const [isFinished, setIsFinished] = useState(false);
-  const [isLoadingText, setIsLoadingText] = useState(false);
   const inputRef = useRef(null);
 
-  const changeTimeMode = (mode) => {
-    setCurrentTimeMode(mode);
-    setTimeLeft(timeLimits[mode]);
-    setShowCustomTimer(false);
+  const resetState = useCallback((time) => {
     setUserInput('');
     setStartTime(null);
     setWpm(0);
+    setCpm(0);
     setAccuracy(100);
+    setErrorCount(0);
+    setTimeLeft(time);
     setIsFinished(false);
-    inputRef.current.focus();
+    setSaved(false);
+    setTimeout(() => inputRef.current?.focus(), 50);
+  }, []);
+
+  const changeTimeMode = (label, value) => {
+    setCurrentTimeMode(label);
+    setTotalTime(value);
+    setShowCustom(false);
+    resetState(value);
   };
 
-  const setCustomTimer = () => {
-    const time = parseInt(customTime);
-    if (time && time > 0 && time <= 600) {
-      setCurrentTimeMode(`${time}s`);
-      setTimeLeft(time);
-      setShowCustomTimer(false);
-      setUserInput('');
-      setStartTime(null);
-      setWpm(0);
-      setAccuracy(100);
-      setIsFinished(false);
-      inputRef.current.focus();
-    } else {
-      alert('Please enter a valid time between 1 and 600 seconds');
-    }
-  };
-
-  useEffect(() => {
-    if (userInput.length === 1 && !startTime) {
-      setStartTime(Date.now());
-    }
-    if (userInput.length === text.length) {
-      setIsFinished(true);
-    }
-  }, [userInput, text.length, startTime]);
-
-  useEffect(() => {
-    if (startTime && !isFinished && timeLeft > 0) {
-      const timer = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 1) {
-            setIsFinished(true);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [startTime, isFinished, timeLeft]);
-
-  useEffect(() => {
-    if (startTime && !isFinished) {
-      const interval = setInterval(() => {
-        const timeElapsed = (Date.now() - startTime) / 1000 / 60; // in minutes
-        const wordsTyped = userInput.length / 5; // average word length
-        const charsTyped = userInput.length;
-        setWpm(Math.round(wordsTyped / timeElapsed));
-        setCpm(Math.round(charsTyped / timeElapsed));
-      }, 100);
-      return () => clearInterval(interval);
-    }
-  }, [startTime, userInput, isFinished]);
-
-  useEffect(() => {
-    if (userInput) {
-      let errorCount = 0;
-      for (let i = 0; i < userInput.length; i++) {
-        if (userInput[i] !== text[i]) {
-          errorCount++;
-        }
-      }
-      const acc = ((userInput.length - errorCount) / userInput.length) * 100;
-      setAccuracy(Math.round(acc));
-      setErrorCount(errorCount);
-    } else {
-      setErrorCount(0);
-    }
-  }, [userInput, text]);
-
-  const handleInputChange = (e) => {
-    setUserInput(e.target.value);
+  const applyCustomTimer = () => {
+    const t = parseInt(customTime);
+    if (!t || t < 1 || t > 600) return alert('Enter a time between 1 and 600 seconds.');
+    setCurrentTimeMode(`${t}s`);
+    setTotalTime(t);
+    setShowCustom(false);
+    setCustomTime('');
+    resetState(t);
   };
 
   const changeLevel = async (level) => {
     setCurrentLevel(level);
-    setIsLoadingText(true);
-
+    setIsLoading(true);
     try {
-      // Try to get text from API first
-      let newText = await apiService.getQuoteByDifficulty(level);
-
-      // If API fails, fall back to local texts
-      if (!newText) {
-        console.log('API failed, using local text');
-        newText = texts[level][Math.floor(Math.random() * texts[level].length)];
-      }
-
-      setText(newText);
-    } catch (error) {
-      console.error('Error fetching text:', error);
-      // Fallback to local text
-      const newText = texts[level][Math.floor(Math.random() * texts[level].length)];
-      setText(newText);
+      const t = await apiService.getQuoteByDifficulty(level);
+      setText(t || TEXTS[level][0]);
+    } catch {
+      setText(TEXTS[level][0]);
     } finally {
-      setIsLoadingText(false);
+      setIsLoading(false);
     }
-
-    setUserInput('');
-    setStartTime(null);
-    setWpm(0);
-    setAccuracy(100);
-    setIsFinished(false);
-    inputRef.current.focus();
+    resetState(totalTime);
   };
 
   const restartTest = async () => {
-    setIsLoadingText(true);
-
+    setIsLoading(true);
     try {
-      // Try to get text from API first
-      let newText = await apiService.getQuoteByDifficulty(currentLevel);
-
-      // If API fails, fall back to local texts
-      if (!newText) {
-        console.log('API failed, using local text');
-        newText = texts[currentLevel][Math.floor(Math.random() * texts[currentLevel].length)];
-      }
-
-      setText(newText);
-    } catch (error) {
-      console.error('Error fetching text:', error);
-      // Fallback to local text
-      const newText = texts[currentLevel][Math.floor(Math.random() * texts[currentLevel].length)];
-      setText(newText);
+      const t = await apiService.getQuoteByDifficulty(currentLevel);
+      setText(t || TEXTS[currentLevel][0]);
+    } catch {
+      setText(TEXTS[currentLevel][0]);
     } finally {
-      setIsLoadingText(false);
+      setIsLoading(false);
     }
-
-    setUserInput('');
-    setStartTime(null);
-    setWpm(0);
-    setAccuracy(100);
-    setIsFinished(false);
-    inputRef.current.focus();
+    resetState(totalTime);
   };
 
+  // Start timer on first keystroke
   useEffect(() => {
-    if (isFinished && onTestComplete) {
-      onTestComplete(wpm, accuracy);
+    if (userInput.length === 1 && !startTime) setStartTime(Date.now());
+    if (userInput.length === text.length)      setIsFinished(true);
+  }, [userInput, text.length, startTime]);
 
-      // Save to test history for analytics
-      const testData = {
-        wpm,
-        accuracy,
-        level: currentLevel,
-        timeMode: currentTimeMode,
-        timestamp: Date.now()
-      };
+  // Countdown
+  useEffect(() => {
+    if (!startTime || isFinished || timeLeft <= 0) return;
+    const id = setInterval(() => {
+      setTimeLeft((p) => {
+        if (p <= 1) { setIsFinished(true); return 0; }
+        return p - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [startTime, isFinished, timeLeft]);
 
-      const storedHistory = JSON.parse(localStorage.getItem('typingTestHistory') || '[]');
-      storedHistory.push(testData);
-      localStorage.setItem('typingTestHistory', JSON.stringify(storedHistory));
+  // Live WPM / CPM
+  useEffect(() => {
+    if (!startTime || isFinished) return;
+    const id = setInterval(() => {
+      const mins = (Date.now() - startTime) / 60000;
+      setWpm(Math.round(userInput.length / 5 / mins));
+      setCpm(Math.round(userInput.length / mins));
+    }, 200);
+    return () => clearInterval(id);
+  }, [startTime, userInput, isFinished]);
+
+  // Accuracy
+  useEffect(() => {
+    if (!userInput) { setErrorCount(0); return; }
+    let errs = 0;
+    for (let i = 0; i < userInput.length; i++) {
+      if (userInput[i] !== text[i]) errs++;
     }
-  }, [isFinished, onTestComplete, wpm, accuracy, currentLevel, currentTimeMode]);
+    setErrorCount(errs);
+    setAccuracy(Math.round(((userInput.length - errs) / userInput.length) * 100));
+  }, [userInput, text]);
 
-  const saveScore = (username) => {
-    const score = {
-      username: username || 'Anonymous',
-      wpm,
-      accuracy,
-      level: currentLevel,
-      timeMode: currentTimeMode,
-      timestamp: Date.now()
-    };
+  // Save on finish
+  useEffect(() => {
+    if (!isFinished || !onTestComplete) return;
+    onTestComplete(wpm, accuracy);
+    const entry = { wpm, accuracy, level: currentLevel, timeMode: currentTimeMode, timestamp: Date.now() };
+    const hist = JSON.parse(localStorage.getItem('typingTestHistory') || '[]');
+    hist.push(entry);
+    localStorage.setItem('typingTestHistory', JSON.stringify(hist));
+  }, [isFinished]); // eslint-disable-line
 
-    const storedScores = JSON.parse(localStorage.getItem('typingTestScores') || '[]');
-    storedScores.push(score);
-    localStorage.setItem('typingTestScores', JSON.stringify(storedScores));
+  const saveScore = () => {
+    const score = { username: username.trim() || 'Anonymous', wpm, accuracy, level: currentLevel, timeMode: currentTimeMode, timestamp: Date.now() };
+    const scores = JSON.parse(localStorage.getItem('typingTestScores') || '[]');
+    scores.push(score);
+    localStorage.setItem('typingTestScores', JSON.stringify(scores));
+    setSaved(true);
   };
 
-  const renderText = () => {
-    return text.split('').map((char, index) => {
-      let className = 'text-gray-500';
-      if (index < userInput.length) {
-        if (userInput[index] === char) {
-          className = 'text-green-500';
-        } else {
-          className = 'text-red-500 bg-red-200';
-        }
+  const shareResult = () => {
+    const txt = `⚡ MultiMian TypePro\n\n${wpm} WPM · ${accuracy}% Accuracy\nLevel: ${currentLevel} · Time: ${currentTimeMode}\n\nhttps://mianhassam96.github.io/MultiMian-TypePro/`;
+    if (navigator.share) {
+      navigator.share({ title: 'My Typing Result', text: txt });
+    } else {
+      navigator.clipboard.writeText(txt).then(() => alert('Copied to clipboard! 📋'));
+    }
+  };
+
+  const renderText = () =>
+    text.split('').map((char, i) => {
+      let cls = 'text-gray-500 dark:text-gray-500';
+      if (i < userInput.length) {
+        cls = userInput[i] === char
+          ? 'text-emerald-400 dark:text-emerald-400'
+          : 'text-red-400 dark:text-red-400 bg-red-500/20 rounded';
       }
-      return (
-        <span key={index} className={className}>
-          {char}
-        </span>
-      );
+      if (i === userInput.length) cls += ' border-l-2 border-violet-400 animate-[blink_1s_step-end_infinite]';
+      return <span key={i} className={cls}>{char}</span>;
     });
-  };
+
+  const levelInfo = LEVELS.find((l) => l.key === currentLevel);
+  const progress  = text.length > 0 ? (userInput.length / text.length) * 100 : 0;
 
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl dark:shadow-purple-500/20 backdrop-blur-sm border border-gray-200 dark:border-gray-700">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
-          ⚡ MultiMian TypePro ⚡
-        </h1>
-        <p className="text-gray-600 dark:text-gray-300 text-lg">
-          Type Smart. Type Fast. Be a TypePro.
-        </p>
-        <div className="mt-4 flex justify-center space-x-2 flex-wrap">
-          <button
-            onClick={() => changeLevel('easy')}
-            className={`px-3 py-2 rounded-lg font-semibold transition-all duration-200 ${
-              currentLevel === 'easy'
-                ? 'bg-green-500 text-white shadow-lg'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-            }`}
-          >
-            🐣 Easy
-          </button>
-          <button
-            onClick={() => changeLevel('medium')}
-            className={`px-3 py-2 rounded-lg font-semibold transition-all duration-200 ${
-              currentLevel === 'medium'
-                ? 'bg-yellow-500 text-white shadow-lg'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-            }`}
-          >
-            ⚡ Medium
-          </button>
-          <button
-            onClick={() => changeLevel('hard')}
-            className={`px-3 py-2 rounded-lg font-semibold transition-all duration-200 ${
-              currentLevel === 'hard'
-                ? 'bg-orange-500 text-white shadow-lg'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-            }`}
-          >
-            🏆 Hard
-          </button>
-          <button
-            onClick={() => changeLevel('expert')}
-            className={`px-3 py-2 rounded-lg font-semibold transition-all duration-200 ${
-              currentLevel === 'expert'
-                ? 'bg-purple-500 text-white shadow-lg'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-            }`}
-          >
-            👑 Expert
-          </button>
+    <div className="max-w-4xl mx-auto">
+      {/* Header card */}
+      <div className="rounded-3xl p-6 mb-5 bg-white/5 border border-white/10 backdrop-blur animate-fade-up">
+        <div className="text-center mb-6">
+          <h1 className="text-4xl font-black text-white mb-1 tracking-tight">
+            ⚡ <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">MultiMian TypePro</span> ⚡
+          </h1>
+          <p className="text-gray-400">Type Smart. Type Fast. Be a TypePro.</p>
         </div>
-        <div className="mt-4 flex justify-center space-x-2 flex-wrap">
+
+        {/* Level selector */}
+        <div className="flex flex-wrap justify-center gap-2 mb-4">
+          {LEVELS.map((l) => (
+            <button
+              key={l.key}
+              onClick={() => changeLevel(l.key)}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                currentLevel === l.key
+                  ? `bg-gradient-to-r ${l.color} text-white shadow-lg scale-105`
+                  : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10'
+              }`}
+            >
+              <span>{l.emoji}</span> {l.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Time selector */}
+        <div className="flex flex-wrap justify-center gap-2">
+          {PRESETS.map((p) => (
+            <button
+              key={p.label}
+              onClick={() => changeTimeMode(p.label, p.value)}
+              className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                currentTimeMode === p.label && !showCustom
+                  ? 'bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-lg scale-105'
+                  : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10'
+              }`}
+            >
+              {p.label}
+            </button>
+          ))}
           <button
-            onClick={() => changeTimeMode('15s')}
-            className={`px-3 py-2 rounded-lg font-semibold transition-all duration-200 ${
-              currentTimeMode === '15s'
-                ? 'bg-blue-500 text-white shadow-lg'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-            }`}
-          >
-            15s
-          </button>
-          <button
-            onClick={() => changeTimeMode('30s')}
-            className={`px-3 py-2 rounded-lg font-semibold transition-all duration-200 ${
-              currentTimeMode === '30s'
-                ? 'bg-blue-500 text-white shadow-lg'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-            }`}
-          >
-            30s
-          </button>
-          <button
-            onClick={() => changeTimeMode('60s')}
-            className={`px-3 py-2 rounded-lg font-semibold transition-all duration-200 ${
-              currentTimeMode === '60s'
-                ? 'bg-blue-500 text-white shadow-lg'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-            }`}
-          >
-            60s
-          </button>
-          <button
-            onClick={() => changeTimeMode('120s')}
-            className={`px-3 py-2 rounded-lg font-semibold transition-all duration-200 ${
-              currentTimeMode === '120s'
-                ? 'bg-blue-500 text-white shadow-lg'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-            }`}
-          >
-            120s
-          </button>
-          <button
-            onClick={() => setShowCustomTimer(!showCustomTimer)}
-            className={`px-3 py-2 rounded-lg font-semibold transition-all duration-200 ${
-              showCustomTimer
-                ? 'bg-purple-500 text-white shadow-lg'
-                : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600'
+            onClick={() => setShowCustom(!showCustom)}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 ${
+              showCustom
+                ? 'bg-gradient-to-r from-pink-600 to-violet-600 text-white shadow-lg scale-105'
+                : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10'
             }`}
           >
             ⏱️ Custom
           </button>
         </div>
-        
-        {showCustomTimer && (
-          <div className="mt-4 flex justify-center items-center space-x-2 animate-fade-in">
+
+        {/* Custom timer input */}
+        {showCustom && (
+          <div className="mt-3 flex justify-center items-center gap-2 animate-slide-down">
             <input
-              type="number"
-              min="1"
-              max="600"
+              type="number" min="1" max="600"
               value={customTime}
               onChange={(e) => setCustomTime(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  setCustomTimer();
-                }
-              }}
-              placeholder="Enter seconds (1-600)"
-              className="px-4 py-2 border-2 border-purple-300 dark:border-purple-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-200 w-48"
+              onKeyDown={(e) => e.key === 'Enter' && applyCustomTimer()}
+              placeholder="Seconds (1–600)"
+              className="w-40 px-4 py-2 rounded-xl bg-white/10 border border-violet-500/40 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm"
             />
             <button
-              onClick={setCustomTimer}
-              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+              onClick={applyCustomTimer}
+              className="px-4 py-2 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white font-semibold rounded-xl text-sm transition-all duration-200 hover:scale-105"
             >
-              Set Timer
+              Set
             </button>
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 to-indigo-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-800 hover:shadow-lg transition-shadow duration-300">
-          <div className="flex items-center justify-center mb-2">
-            <svg className="w-6 h-6 text-blue-600 dark:text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            <span className="text-xl font-bold text-blue-600 dark:text-blue-400">{wpm}</span>
-          </div>
-          <p className="text-center text-gray-600 dark:text-gray-300 text-sm font-medium">WPM</p>
+      {/* Stats row */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5 animate-fade-up delay-100">
+        {/* Timer ring */}
+        <div className="md:col-span-1 flex items-center justify-center p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur">
+          <TimerRing timeLeft={timeLeft} totalTime={totalTime} />
         </div>
 
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 to-pink-900/20 p-4 rounded-xl border border-purple-200 dark:border-purple-800 hover:shadow-lg transition-shadow duration-300">
-          <div className="flex items-center justify-center mb-2">
-            <svg className="w-6 h-6 text-purple-600 dark:text-purple-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-            <span className="text-xl font-bold text-purple-600 dark:text-purple-400">{cpm}</span>
+        {[
+          { label: 'WPM',      value: wpm,          icon: '⚡', color: 'text-violet-400' },
+          { label: 'CPM',      value: cpm,          icon: '⌨️', color: 'text-blue-400'   },
+          { label: 'Accuracy', value: `${accuracy}%`, icon: '🎯', color: 'text-emerald-400' },
+          { label: 'Errors',   value: errorCount,   icon: '❌', color: 'text-red-400'    },
+        ].map((s) => (
+          <div key={s.label} className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur card-lift">
+            <span className="text-xl mb-1">{s.icon}</span>
+            <span className={`text-2xl font-black tabular-nums ${s.color}`}>{s.value}</span>
+            <span className="text-gray-500 text-xs font-medium mt-0.5">{s.label}</span>
           </div>
-          <p className="text-center text-gray-600 dark:text-gray-300 text-sm font-medium">CPM</p>
-        </div>
-
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 to-emerald-900/20 p-4 rounded-xl border border-green-200 dark:border-green-800 hover:shadow-lg transition-shadow duration-300">
-          <div className="flex items-center justify-center mb-2">
-            <svg className="w-6 h-6 text-green-600 dark:text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="text-xl font-bold text-green-600 dark:text-green-400">{accuracy}%</span>
-          </div>
-          <p className="text-center text-gray-600 dark:text-gray-300 text-sm font-medium">Accuracy</p>
-        </div>
-
-        <div className="bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 to-yellow-900/20 p-4 rounded-xl border border-orange-200 dark:border-orange-800 hover:shadow-lg transition-shadow duration-300">
-          <div className="flex items-center justify-center mb-2">
-            <svg className="w-6 h-6 text-orange-600 dark:text-orange-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="text-xl font-bold text-orange-600 dark:text-orange-400">{timeLeft}s</span>
-          </div>
-          <p className="text-center text-gray-600 dark:text-gray-300 text-sm font-medium">Time Left</p>
-        </div>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className={`p-6 rounded-xl border transition-all duration-300 ${
-          currentLevel === 'easy' ? 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 to-emerald-900/20 border-green-200 dark:border-green-800' :
-          currentLevel === 'medium' ? 'bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 to-orange-900/20 border-yellow-200 dark:border-yellow-800' :
-          currentLevel === 'hard' ? 'bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 to-red-900/20 border-orange-200 dark:border-orange-800' :
-          'bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 to-pink-900/20 border-purple-200 dark:border-purple-800'
-        }`}>
-          <div className="flex items-center justify-center mb-2">
-            <span className="text-3xl mr-3">
-              {currentLevel === 'easy' ? '🐣' : currentLevel === 'medium' ? '⚡' : currentLevel === 'hard' ? '🏆' : '👑'}
-            </span>
-            <span className={`text-2xl font-bold capitalize ${
-              currentLevel === 'easy' ? 'text-green-600 dark:text-green-400' :
-              currentLevel === 'medium' ? 'text-yellow-600 dark:text-yellow-400' :
-              currentLevel === 'hard' ? 'text-orange-600 dark:text-orange-400' :
-              'text-purple-600 dark:text-purple-400'
-            }`}>
-              {currentLevel}
-            </span>
-          </div>
-          <p className="text-center text-gray-600 dark:text-gray-300 font-medium">Current Level</p>
-        </div>
-      </div>
-
-      {/* Animated Progress Bar */}
-      <div className="mb-6">
-        <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden shadow-inner">
-          <div
-            className={`h-full transition-all duration-500 ease-out rounded-full ${
-              wpm >= 60 ? 'bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500 animate-pulse' :
-              wpm >= 40 ? 'bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500' :
-              wpm >= 20 ? 'bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500' :
-              'bg-gradient-to-r from-gray-400 via-slate-500 to-zinc-500'
-            }`}
-            style={{ width: `${(userInput.length / text.length) * 100}%` }}
-          ></div>
-        </div>
-        <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mt-2">
+      {/* Progress bar */}
+      <div className="mb-4 animate-fade-up delay-200">
+        <div className="flex justify-between text-xs text-gray-500 mb-1.5">
           <span>Progress</span>
-          <span>{userInput.length} / {text.length} characters</span>
+          <span>{userInput.length} / {text.length} chars</span>
+        </div>
+        <div className="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5 shimmer-bar">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-violet-500 via-blue-500 to-cyan-500 transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
 
-      <div className="bg-gradient-to-r from-white to-blue-50 dark:from-gray-900 dark:to-blue-950 p-8 rounded-xl border-2 border-blue-200 dark:border-blue-800 mb-6 animate-fade-in shadow-lg">
-        <div className="text-xl leading-relaxed font-mono text-gray-900 dark:text-gray-100">
-          {isLoadingText ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-purple-400"></div>
-              <span className="ml-3 text-gray-600 dark:text-gray-300">Loading text...</span>
-            </div>
-          ) : (
-            renderText()
-          )}
-        </div>
+      {/* Text display */}
+      <div className="mb-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur animate-fade-up delay-200">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-8 gap-3">
+            <div className="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+            <span className="text-gray-400">Loading text…</span>
+          </div>
+        ) : (
+          <p className="font-mono-typing text-lg leading-relaxed tracking-wide select-none">
+            {renderText()}
+          </p>
+        )}
       </div>
 
+      {/* Input */}
       <textarea
         ref={inputRef}
         value={userInput}
-        onChange={handleInputChange}
-        disabled={isFinished}
-        className="w-full p-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-500 dark:focus:ring-purple-500 focus:border-transparent transition-all duration-200 resize-none"
-        placeholder="Start typing here..."
-        rows="4"
+        onChange={(e) => setUserInput(e.target.value)}
+        disabled={isFinished || isLoading}
+        rows={4}
+        placeholder={isFinished ? 'Test complete!' : 'Start typing here…'}
+        className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/30 text-white placeholder-gray-600 font-mono-typing text-base resize-none outline-none transition-all duration-200 backdrop-blur animate-fade-up delay-300 disabled:opacity-50"
       />
 
-      <div className="mt-6 flex justify-center">
+      {/* Restart */}
+      <div className="mt-4 flex justify-center animate-fade-up delay-300">
         <button
           onClick={restartTest}
-          className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-500 dark:focus:ring-purple-500"
+          className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white font-bold rounded-2xl shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40 transform hover:scale-105 transition-all duration-200"
         >
-          <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
           Restart Test
         </button>
       </div>
 
+      {/* Results panel */}
       {isFinished && (
-        <div className="mt-8 animate-fade-in">
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 to-emerald-900/20 border-2 border-green-200 dark:border-green-800 rounded-xl overflow-hidden shadow-2xl">
-            {/* Animated Header */}
-            <div className="p-6 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-emerald-400/20 animate-pulse"></div>
-              <div className="relative z-10">
-                <div className="flex items-center justify-center mb-2">
-                  <svg className="w-8 h-8 mr-2 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <h2 className="text-2xl font-bold">Test Completed!</h2>
+        <div className="mt-6 rounded-3xl overflow-hidden border border-white/10 animate-scale-in">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-violet-600 to-blue-600 p-6 text-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-white/5 animate-pulse" />
+            <div className="relative z-10">
+              <div className="text-4xl mb-2 animate-float">🎉</div>
+              <h2 className="text-2xl font-black text-white">Test Complete!</h2>
+              <p className="text-violet-200 text-sm mt-1">Here's how you did</p>
+            </div>
+          </div>
+
+          <div className="p-6 bg-white/5 backdrop-blur">
+            {/* Result stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+              {[
+                { label: 'WPM',      value: wpm,            color: 'text-violet-400', sub: 'Words/min'  },
+                { label: 'CPM',      value: cpm,            color: 'text-blue-400',   sub: 'Chars/min'  },
+                { label: 'Accuracy', value: `${accuracy}%`, color: 'text-emerald-400',sub: 'Precision'  },
+                { label: 'Errors',   value: errorCount,     color: 'text-red-400',    sub: 'Mistakes'   },
+              ].map((s, i) => (
+                <div key={i} className={`text-center p-4 rounded-2xl bg-white/5 border border-white/10 animate-fade-up delay-${(i+1)*100}`}>
+                  <div className={`text-3xl font-black ${s.color}`}>{s.value}</div>
+                  <div className="text-white text-sm font-semibold mt-0.5">{s.label}</div>
+                  <div className="text-gray-500 text-xs">{s.sub}</div>
                 </div>
-                <p className="text-green-100">Great job! Here's your performance.</p>
-              </div>
+              ))}
             </div>
 
-            {/* Stats Grid with Animation Delays */}
-            <div className="p-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div className="bg-white dark:bg-gray-700 p-4 rounded-lg text-center animate-fade-in" style={{animationDelay: '0.1s'}}>
-                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-1">{wpm}</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">WPM</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Words/Min</div>
-                </div>
-                <div className="bg-white dark:bg-gray-700 p-4 rounded-lg text-center animate-fade-in" style={{animationDelay: '0.2s'}}>
-                  <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-1">{cpm}</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">CPM</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Chars/Min</div>
-                </div>
-                <div className="bg-white dark:bg-gray-700 p-4 rounded-lg text-center animate-fade-in" style={{animationDelay: '0.3s'}}>
-                  <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-1">{accuracy}%</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">Accuracy</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Precision</div>
-                </div>
-                <div className="bg-white dark:bg-gray-700 p-4 rounded-lg text-center animate-fade-in" style={{animationDelay: '0.4s'}}>
-                  <div className="text-3xl font-bold text-red-600 dark:text-red-400 mb-1">{errorCount}</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">Errors</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Mistakes</div>
-                </div>
-              </div>
+            {/* Level + time badge */}
+            <div className="flex justify-center gap-3 mb-5">
+              <span className="px-3 py-1.5 rounded-full bg-white/10 text-gray-300 text-sm font-medium border border-white/10">
+                {levelInfo?.emoji} {currentLevel}
+              </span>
+              <span className="px-3 py-1.5 rounded-full bg-white/10 text-gray-300 text-sm font-medium border border-white/10">
+                ⏱️ {currentTimeMode}
+              </span>
+            </div>
 
-              {/* Level and Time Info */}
-              <div className="bg-white dark:bg-gray-700 p-4 rounded-lg mb-6 text-center animate-fade-in" style={{animationDelay: '0.5s'}}>
-                <div className="flex items-center justify-center space-x-4 text-sm">
-                  <span className="flex items-center">
-                    <span className="mr-1">
-                      {currentLevel === 'beginner' ? '🐣' : currentLevel === 'intermediate' ? '⚡' : currentLevel === 'pro' ? '🏆' : '👑'}
-                    </span>
-                    <span className="capitalize font-medium">{currentLevel}</span>
-                  </span>
-                  <span className="text-gray-400">•</span>
-                  <span className="flex items-center">
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {currentTimeMode}
-                  </span>
-                </div>
-              </div>
+            {/* Action buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 mb-5">
+              <button
+                onClick={restartTest}
+                className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white font-bold rounded-2xl transition-all duration-200 hover:scale-105"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Try Again
+              </button>
+              <button
+                onClick={shareResult}
+                className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-2xl transition-all duration-200 hover:scale-105"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                </svg>
+                Share Result
+              </button>
+            </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 justify-center animate-fade-in" style={{animationDelay: '0.6s'}}>
-                <button
-                  onClick={restartTest}
-                  className="flex-1 sm:flex-none px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-500 dark:focus:ring-purple-500 flex items-center justify-center"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  Try Again
-                </button>
-                <button
-                  onClick={() => {
-                    const resultText = `🎯 MultiMian TypePro Result:\n\n⚡ ${wpm} WPM | 🎯 ${accuracy}% Accuracy\n🏆 Level: ${currentLevel.charAt(0).toUpperCase() + currentLevel.slice(1)} | ⏱️ ${currentTimeMode}\n\nTest your typing skills at: https://multimian-typepro.vercel.app/`;
-                    if (navigator.share) {
-                      navigator.share({
-                        title: 'My Typing Test Result',
-                        text: resultText,
-                      });
-                    } else {
-                      navigator.clipboard.writeText(resultText).then(() => {
-                        alert('Result copied to clipboard! 📋');
-                      });
-                    }
-                  }}
-                  className="flex-1 sm:flex-none px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-green-500 dark:focus:ring-teal-500 flex items-center justify-center"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                  </svg>
-                  Share Result
-                </button>
-              </div>
-
-              {/* Leaderboard Submission */}
-              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-600 animate-fade-in" style={{animationDelay: '0.7s'}}>
-                <div className="text-center mb-4">
-                  <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Save to Leaderboard</h3>
+            {/* Save to leaderboard */}
+            <div className="border-t border-white/10 pt-5">
+              <p className="text-center text-gray-400 text-sm mb-3 font-medium">Save to Leaderboard</p>
+              {saved ? (
+                <div className="text-center text-emerald-400 font-semibold animate-scale-in">✅ Score saved!</div>
+              ) : (
+                <div className="flex gap-2 max-w-sm mx-auto">
                   <input
                     type="text"
-                    placeholder="Enter your name"
-                    className="w-full max-w-md px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-purple-500 transition-all duration-200"
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        saveScore(e.target.value);
-                        e.target.value = '';
-                      }
-                    }}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && saveScore()}
+                    placeholder="Your name (optional)"
+                    className="flex-1 px-4 py-2 rounded-xl bg-white/10 border border-white/10 focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/30 text-white placeholder-gray-600 text-sm outline-none transition-all"
                   />
-                </div>
-                <div className="text-center">
                   <button
-                    onClick={() => saveScore('Anonymous')}
-                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    onClick={saveScore}
+                    className="px-4 py-2 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white font-semibold rounded-xl text-sm transition-all duration-200 hover:scale-105"
                   >
-                    Save as Anonymous
+                    Save
                   </button>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
