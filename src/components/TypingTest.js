@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import apiService from '../services/apiService';
 
 const TEXTS = {
@@ -16,10 +16,10 @@ const PRESETS = [
 ];
 
 const LEVELS = [
-  { key: 'easy',   label: 'Easy',   emoji: '🐣', color: 'from-emerald-500 to-green-500',   active: 'bg-emerald-500' },
-  { key: 'medium', label: 'Medium', emoji: '⚡', color: 'from-amber-500 to-yellow-500',    active: 'bg-amber-500'   },
-  { key: 'hard',   label: 'Hard',   emoji: '🏆', color: 'from-orange-500 to-red-500',      active: 'bg-orange-500'  },
-  { key: 'expert', label: 'Expert', emoji: '👑', color: 'from-violet-500 to-purple-600',   active: 'bg-violet-500'  },
+  { key: 'easy',   label: 'Easy',   emoji: '🐣', color: 'from-emerald-500 to-green-500'  },
+  { key: 'medium', label: 'Medium', emoji: '⚡', color: 'from-amber-500 to-yellow-500'   },
+  { key: 'hard',   label: 'Hard',   emoji: '🏆', color: 'from-orange-500 to-red-500'     },
+  { key: 'expert', label: 'Expert', emoji: '👑', color: 'from-violet-500 to-purple-600'  },
 ];
 
 // SVG circular timer ring
@@ -79,7 +79,7 @@ const TypingTest = ({ onTestComplete }) => {
 
   const inputRef = useRef(null);
 
-  const resetState = useCallback((time) => {
+  const resetState = (time) => {
     setUserInput('');
     setStartTime(null);
     setWpm(0);
@@ -90,7 +90,7 @@ const TypingTest = ({ onTestComplete }) => {
     setIsFinished(false);
     setSaved(false);
     setTimeout(() => inputRef.current?.focus(), 50);
-  }, []);
+  };
 
   const changeTimeMode = (label, value) => {
     setCurrentTimeMode(label);
@@ -176,15 +176,19 @@ const TypingTest = ({ onTestComplete }) => {
     setAccuracy(Math.round(((userInput.length - errs) / userInput.length) * 100));
   }, [userInput, text]);
 
-  // Save on finish
+  // Save on finish — use ref to avoid stale closure without exhaustive-deps warning
+  const finishDataRef = useRef({});
+  finishDataRef.current = { wpm, accuracy, currentLevel, currentTimeMode, onTestComplete };
+
   useEffect(() => {
-    if (!isFinished || !onTestComplete) return;
-    onTestComplete(wpm, accuracy);
-    const entry = { wpm, accuracy, level: currentLevel, timeMode: currentTimeMode, timestamp: Date.now() };
+    if (!isFinished) return;
+    const { wpm: w, accuracy: a, currentLevel: lvl, currentTimeMode: tm, onTestComplete: cb } = finishDataRef.current;
+    if (cb) cb(w, a);
+    const entry = { wpm: w, accuracy: a, level: lvl, timeMode: tm, timestamp: Date.now() };
     const hist = JSON.parse(localStorage.getItem('typingTestHistory') || '[]');
     hist.push(entry);
     localStorage.setItem('typingTestHistory', JSON.stringify(hist));
-  }, [isFinished]); // eslint-disable-line
+  }, [isFinished]);
 
   const saveScore = () => {
     const score = { username: username.trim() || 'Anonymous', wpm, accuracy, level: currentLevel, timeMode: currentTimeMode, timestamp: Date.now() };
