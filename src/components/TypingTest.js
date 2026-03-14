@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
 import apiService from '../services/apiService';
 
 const TEXTS = {
@@ -462,6 +463,15 @@ const TypingTest = ({ onTestComplete }) => {
       )}
     </div>
   );
+};
+
+TimerRing.propTypes = {
+  timeLeft:  PropTypes.number.isRequired,
+  totalTime: PropTypes.number.isRequired,
+};
+
+TypingTest.propTypes = {
+  onTestComplete: PropTypes.func,
 };
 
 export default TypingTest;

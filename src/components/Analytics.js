@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Area, AreaChart } from 'recharts';
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -15,6 +16,12 @@ const CustomTooltip = ({ active, payload, label }) => {
       {d.level && <p className="text-gray-500 text-xs mt-1">{d.level} · {d.timeMode}</p>}
     </div>
   );
+};
+
+CustomTooltip.propTypes = {
+  active:  PropTypes.bool,
+  payload: PropTypes.array,
+  label:   PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 const Analytics = () => {

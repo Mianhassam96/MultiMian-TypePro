@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
+import PropTypes from 'prop-types';
 import Particles, { initParticlesEngine } from '@tsparticles/react';
 import { loadSlim } from '@tsparticles/slim';
 
@@ -106,6 +107,10 @@ const ParticleBackground = ({ theme }) => {
       style={{ zIndex: -1 }}
     />
   );
+};
+
+ParticleBackground.propTypes = {
+  theme: PropTypes.string.isRequired,
 };
 
 export default ParticleBackground;
