@@ -1,13 +1,2 @@
-/* MultiMian TypePro — Global overrides */
-
-/* Animated gradient body */
-body {
-  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-  background-size: 400% 400%;
-  animation: gradientShift 18s ease infinite;
-  min-height: 100vh;
-}
-
-.dark body {
-  background: linear-gradient(135deg, #0a0a0f, #1a1a2e, #16213e);
-}
+/* MultiMian TypePro — App overrides */
+/* Body background is handled in index.css via CSS variables */

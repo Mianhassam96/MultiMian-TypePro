@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import apiService from '../services/apiService';
 
@@ -18,12 +18,11 @@ const PRESETS = [
 
 const LEVELS = [
   { key: 'easy',   label: 'Easy',   emoji: '🐣', color: 'from-emerald-500 to-green-500'  },
-  { key: 'medium', label: 'Medium', emoji: '⚡', color: 'from-amber-500 to-yellow-500'   },
+  { key: 'medium', label: 'Medium', emoji: '🔥', color: 'from-amber-500 to-yellow-500'   },
   { key: 'hard',   label: 'Hard',   emoji: '🏆', color: 'from-orange-500 to-red-500'     },
   { key: 'expert', label: 'Expert', emoji: '👑', color: 'from-violet-500 to-purple-600'  },
 ];
 
-// SVG circular timer ring
 const TimerRing = ({ timeLeft, totalTime }) => {
   const radius = 44;
   const circumference = 2 * Math.PI * radius;
@@ -31,13 +30,12 @@ const TimerRing = ({ timeLeft, totalTime }) => {
   const offset = circumference * (1 - progress);
   const isWarning = timeLeft <= 10 && timeLeft > 0;
   const isDanger  = timeLeft <= 5  && timeLeft > 0;
-
-  const strokeColor = isDanger ? '#ef4444' : isWarning ? '#f59e0b' : '#8b5cf6';
+  const strokeColor = isDanger ? '#ef4444' : isWarning ? '#f59e0b' : 'var(--brand-from)';
 
   return (
     <div className={`relative flex items-center justify-center ${isWarning ? 'animate-pulse-ring' : ''}`}>
       <svg width="100" height="100" className="transform -rotate-90">
-        <circle cx="50" cy="50" r={radius} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="6" />
+        <circle cx="50" cy="50" r={radius} fill="none" stroke="var(--border)" strokeWidth="6" />
         <circle
           cx="50" cy="50" r={radius}
           fill="none"
@@ -50,10 +48,10 @@ const TimerRing = ({ timeLeft, totalTime }) => {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className={`text-2xl font-black tabular-nums ${isDanger ? 'animate-timer-warn' : isWarning ? 'text-amber-400' : 'text-white'}`}>
+        <span className={`text-2xl font-black tabular-nums ${isDanger ? 'animate-timer-warn' : isWarning ? 'text-amber-400' : 'text-primary'}`}>
           {timeLeft}
         </span>
-        <span className="text-gray-400 text-xs font-medium">sec</span>
+        <span className="text-muted text-xs font-medium">sec</span>
       </div>
     </div>
   );
@@ -137,13 +135,11 @@ const TypingTest = ({ onTestComplete }) => {
     resetState(totalTime);
   };
 
-  // Start timer on first keystroke
   useEffect(() => {
     if (userInput.length === 1 && !startTime) setStartTime(Date.now());
     if (userInput.length === text.length)      setIsFinished(true);
   }, [userInput, text.length, startTime]);
 
-  // Countdown
   useEffect(() => {
     if (!startTime || isFinished || timeLeft <= 0) return;
     const id = setInterval(() => {
@@ -155,7 +151,6 @@ const TypingTest = ({ onTestComplete }) => {
     return () => clearInterval(id);
   }, [startTime, isFinished, timeLeft]);
 
-  // Live WPM / CPM
   useEffect(() => {
     if (!startTime || isFinished) return;
     const id = setInterval(() => {
@@ -166,7 +161,6 @@ const TypingTest = ({ onTestComplete }) => {
     return () => clearInterval(id);
   }, [startTime, userInput, isFinished]);
 
-  // Accuracy
   useEffect(() => {
     if (!userInput) { setErrorCount(0); return; }
     let errs = 0;
@@ -177,7 +171,6 @@ const TypingTest = ({ onTestComplete }) => {
     setAccuracy(Math.round(((userInput.length - errs) / userInput.length) * 100));
   }, [userInput, text]);
 
-  // Save on finish — use ref to avoid stale closure without exhaustive-deps warning
   const finishDataRef = useRef({});
   finishDataRef.current = { wpm, accuracy, currentLevel, currentTimeMode, onTestComplete };
 
@@ -200,21 +193,21 @@ const TypingTest = ({ onTestComplete }) => {
   };
 
   const shareResult = () => {
-    const txt = `⚡ MultiMian TypePro\n\n${wpm} WPM · ${accuracy}% Accuracy\nLevel: ${currentLevel} · Time: ${currentTimeMode}\n\nhttps://mianhassam96.github.io/MultiMian-TypePro/`;
+    const txt = `MultiMian TypePro\n\n${wpm} WPM · ${accuracy}% Accuracy\nLevel: ${currentLevel} · Time: ${currentTimeMode}\n\nhttps://mianhassam96.github.io/MultiMian-TypePro/`;
     if (navigator.share) {
       navigator.share({ title: 'My Typing Result', text: txt });
     } else {
-      navigator.clipboard.writeText(txt).then(() => alert('Copied to clipboard! 📋'));
+      navigator.clipboard.writeText(txt).then(() => alert('Copied to clipboard!'));
     }
   };
 
   const renderText = () =>
     text.split('').map((char, i) => {
-      let cls = 'text-gray-500 dark:text-gray-500';
+      let cls = 'text-muted';
       if (i < userInput.length) {
         cls = userInput[i] === char
-          ? 'text-emerald-400 dark:text-emerald-400'
-          : 'text-red-400 dark:text-red-400 bg-red-500/20 rounded';
+          ? 'text-emerald-500'
+          : 'text-red-400 bg-red-500/20 rounded';
       }
       if (i === userInput.length) cls += ' border-l-2 border-violet-400 animate-[blink_1s_step-end_infinite]';
       return <span key={i} className={cls}>{char}</span>;
@@ -226,12 +219,12 @@ const TypingTest = ({ onTestComplete }) => {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header card */}
-      <div className="rounded-3xl p-6 mb-5 bg-white/5 border border-white/10 backdrop-blur animate-fade-up">
+      <div className="surface rounded-3xl p-6 mb-5 animate-fade-up">
         <div className="text-center mb-6">
-          <h1 className="text-4xl font-black text-white mb-1 tracking-tight">
-            ⚡ <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">MultiMian TypePro</span> ⚡
+          <h1 className="text-4xl font-black mb-1 tracking-tight">
+            <span className="logo-text">MultiMian TypePro</span>
           </h1>
-          <p className="text-gray-400">Type Smart. Type Fast. Be a TypePro.</p>
+          <p className="text-secondary">Type Smart. Type Fast. Be a TypePro.</p>
         </div>
 
         {/* Level selector */}
@@ -243,7 +236,7 @@ const TypingTest = ({ onTestComplete }) => {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 ${
                 currentLevel === l.key
                   ? `bg-gradient-to-r ${l.color} text-white shadow-lg scale-105`
-                  : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10'
+                  : 'btn-ghost'
               }`}
             >
               <span>{l.emoji}</span> {l.label}
@@ -260,7 +253,7 @@ const TypingTest = ({ onTestComplete }) => {
               className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 ${
                 currentTimeMode === p.label && !showCustom
                   ? 'bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-lg scale-105'
-                  : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10'
+                  : 'btn-ghost'
               }`}
             >
               {p.label}
@@ -271,14 +264,13 @@ const TypingTest = ({ onTestComplete }) => {
             className={`flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 ${
               showCustom
                 ? 'bg-gradient-to-r from-pink-600 to-violet-600 text-white shadow-lg scale-105'
-                : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10'
+                : 'btn-ghost'
             }`}
           >
             ⏱️ Custom
           </button>
         </div>
 
-        {/* Custom timer input */}
         {showCustom && (
           <div className="mt-3 flex justify-center items-center gap-2 animate-slide-down">
             <input
@@ -287,12 +279,9 @@ const TypingTest = ({ onTestComplete }) => {
               onChange={(e) => setCustomTime(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && applyCustomTimer()}
               placeholder="Seconds (1–600)"
-              className="w-40 px-4 py-2 rounded-xl bg-white/10 border border-violet-500/40 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm"
+              className="input-base w-40 text-sm"
             />
-            <button
-              onClick={applyCustomTimer}
-              className="px-4 py-2 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white font-semibold rounded-xl text-sm transition-all duration-200 hover:scale-105"
-            >
+            <button onClick={applyCustomTimer} className="btn-primary px-4 py-2 rounded-xl text-sm">
               Set
             </button>
           </div>
@@ -301,32 +290,30 @@ const TypingTest = ({ onTestComplete }) => {
 
       {/* Stats row */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5 animate-fade-up delay-100">
-        {/* Timer ring */}
-        <div className="md:col-span-1 flex items-center justify-center p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur">
+        <div className="md:col-span-1 flex items-center justify-center p-4 rounded-2xl surface">
           <TimerRing timeLeft={timeLeft} totalTime={totalTime} />
         </div>
-
         {[
-          { label: 'WPM',      value: wpm,          icon: '⚡', color: 'text-violet-400' },
-          { label: 'CPM',      value: cpm,          icon: '⌨️', color: 'text-blue-400'   },
+          { label: 'WPM',      value: wpm,            icon: '💨', color: 'text-violet-400' },
+          { label: 'CPM',      value: cpm,            icon: '⌨️', color: 'text-blue-400'   },
           { label: 'Accuracy', value: `${accuracy}%`, icon: '🎯', color: 'text-emerald-400' },
-          { label: 'Errors',   value: errorCount,   icon: '❌', color: 'text-red-400'    },
+          { label: 'Errors',   value: errorCount,     icon: '❌', color: 'text-red-400'    },
         ].map((s) => (
-          <div key={s.label} className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur card-lift">
+          <div key={s.label} className="stat-card flex flex-col items-center justify-center">
             <span className="text-xl mb-1">{s.icon}</span>
             <span className={`text-2xl font-black tabular-nums ${s.color}`}>{s.value}</span>
-            <span className="text-gray-500 text-xs font-medium mt-0.5">{s.label}</span>
+            <span className="text-muted text-xs font-medium mt-0.5">{s.label}</span>
           </div>
         ))}
       </div>
 
       {/* Progress bar */}
       <div className="mb-4 animate-fade-up delay-200">
-        <div className="flex justify-between text-xs text-gray-500 mb-1.5">
+        <div className="flex justify-between text-xs text-muted mb-1.5">
           <span>Progress</span>
           <span>{userInput.length} / {text.length} chars</span>
         </div>
-        <div className="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5 shimmer-bar">
+        <div className="h-2 rounded-full overflow-hidden shimmer-bar" style={{ background: 'var(--border)' }}>
           <div
             className="h-full rounded-full bg-gradient-to-r from-violet-500 via-blue-500 to-cyan-500 transition-all duration-300"
             style={{ width: `${progress}%` }}
@@ -335,11 +322,11 @@ const TypingTest = ({ onTestComplete }) => {
       </div>
 
       {/* Text display */}
-      <div className="mb-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur animate-fade-up delay-200">
+      <div className="surface mb-4 p-6 rounded-2xl animate-fade-up delay-200">
         {isLoading ? (
           <div className="flex items-center justify-center py-8 gap-3">
-            <div className="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
-            <span className="text-gray-400">Loading text…</span>
+            <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--brand-from)', borderTopColor: 'transparent' }} />
+            <span className="text-secondary">Loading text…</span>
           </div>
         ) : (
           <p className="font-mono-typing text-lg leading-relaxed tracking-wide select-none">
@@ -356,14 +343,14 @@ const TypingTest = ({ onTestComplete }) => {
         disabled={isFinished || isLoading}
         rows={4}
         placeholder={isFinished ? 'Test complete!' : 'Start typing here…'}
-        className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/30 text-white placeholder-gray-600 font-mono-typing text-base resize-none outline-none transition-all duration-200 backdrop-blur animate-fade-up delay-300 disabled:opacity-50"
+        className="typing-area font-mono-typing text-base animate-fade-up delay-300"
       />
 
       {/* Restart */}
       <div className="mt-4 flex justify-center animate-fade-up delay-300">
         <button
           onClick={restartTest}
-          className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white font-bold rounded-2xl shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40 transform hover:scale-105 transition-all duration-200"
+          className="btn-primary flex items-center gap-2 px-8 py-3 rounded-2xl font-bold"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -374,8 +361,7 @@ const TypingTest = ({ onTestComplete }) => {
 
       {/* Results panel */}
       {isFinished && (
-        <div className="mt-6 rounded-3xl overflow-hidden border border-white/10 animate-scale-in">
-          {/* Header */}
+        <div className="mt-6 rounded-3xl overflow-hidden surface animate-scale-in">
           <div className="bg-gradient-to-r from-violet-600 to-blue-600 p-6 text-center relative overflow-hidden">
             <div className="absolute inset-0 bg-white/5 animate-pulse" />
             <div className="relative z-10">
@@ -385,48 +371,35 @@ const TypingTest = ({ onTestComplete }) => {
             </div>
           </div>
 
-          <div className="p-6 bg-white/5 backdrop-blur">
-            {/* Result stats */}
+          <div className="p-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
               {[
-                { label: 'WPM',      value: wpm,            color: 'text-violet-400', sub: 'Words/min'  },
-                { label: 'CPM',      value: cpm,            color: 'text-blue-400',   sub: 'Chars/min'  },
-                { label: 'Accuracy', value: `${accuracy}%`, color: 'text-emerald-400',sub: 'Precision'  },
-                { label: 'Errors',   value: errorCount,     color: 'text-red-400',    sub: 'Mistakes'   },
+                { label: 'WPM',      value: wpm,            color: 'text-violet-400',  sub: 'Words/min' },
+                { label: 'CPM',      value: cpm,            color: 'text-blue-400',    sub: 'Chars/min' },
+                { label: 'Accuracy', value: `${accuracy}%`, color: 'text-emerald-400', sub: 'Precision' },
+                { label: 'Errors',   value: errorCount,     color: 'text-red-400',     sub: 'Mistakes'  },
               ].map((s, i) => (
-                <div key={i} className={`text-center p-4 rounded-2xl bg-white/5 border border-white/10 animate-fade-up delay-${(i+1)*100}`}>
+                <div key={i} className={`stat-card text-center animate-fade-up delay-${(i+1)*100}`}>
                   <div className={`text-3xl font-black ${s.color}`}>{s.value}</div>
-                  <div className="text-white text-sm font-semibold mt-0.5">{s.label}</div>
-                  <div className="text-gray-500 text-xs">{s.sub}</div>
+                  <div className="text-primary text-sm font-semibold mt-0.5">{s.label}</div>
+                  <div className="text-muted text-xs">{s.sub}</div>
                 </div>
               ))}
             </div>
 
-            {/* Level + time badge */}
             <div className="flex justify-center gap-3 mb-5">
-              <span className="px-3 py-1.5 rounded-full bg-white/10 text-gray-300 text-sm font-medium border border-white/10">
-                {levelInfo?.emoji} {currentLevel}
-              </span>
-              <span className="px-3 py-1.5 rounded-full bg-white/10 text-gray-300 text-sm font-medium border border-white/10">
-                ⏱️ {currentTimeMode}
-              </span>
+              <span className="badge">{levelInfo?.emoji} {currentLevel}</span>
+              <span className="badge">⏱️ {currentTimeMode}</span>
             </div>
 
-            {/* Action buttons */}
             <div className="flex flex-col sm:flex-row gap-3 mb-5">
-              <button
-                onClick={restartTest}
-                className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white font-bold rounded-2xl transition-all duration-200 hover:scale-105"
-              >
+              <button onClick={restartTest} className="btn-primary flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl font-bold">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
                 Try Again
               </button>
-              <button
-                onClick={shareResult}
-                className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-2xl transition-all duration-200 hover:scale-105"
-              >
+              <button onClick={shareResult} className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-2xl transition-all duration-200 hover:scale-105">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                 </svg>
@@ -434,11 +407,10 @@ const TypingTest = ({ onTestComplete }) => {
               </button>
             </div>
 
-            {/* Save to leaderboard */}
-            <div className="border-t border-white/10 pt-5">
-              <p className="text-center text-gray-400 text-sm mb-3 font-medium">Save to Leaderboard</p>
+            <div className="border-t pt-5" style={{ borderColor: 'var(--border)' }}>
+              <p className="text-center text-secondary text-sm mb-3 font-medium">Save to Leaderboard</p>
               {saved ? (
-                <div className="text-center text-emerald-400 font-semibold animate-scale-in">✅ Score saved!</div>
+                <div className="text-center text-emerald-500 font-semibold animate-scale-in">✅ Score saved!</div>
               ) : (
                 <div className="flex gap-2 max-w-sm mx-auto">
                   <input
@@ -447,12 +419,9 @@ const TypingTest = ({ onTestComplete }) => {
                     onChange={(e) => setUsername(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && saveScore()}
                     placeholder="Your name (optional)"
-                    className="flex-1 px-4 py-2 rounded-xl bg-white/10 border border-white/10 focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/30 text-white placeholder-gray-600 text-sm outline-none transition-all"
+                    className="input-base text-sm"
                   />
-                  <button
-                    onClick={saveScore}
-                    className="px-4 py-2 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white font-semibold rounded-xl text-sm transition-all duration-200 hover:scale-105"
-                  >
+                  <button onClick={saveScore} className="btn-primary px-4 py-2 rounded-xl text-sm">
                     Save
                   </button>
                 </div>

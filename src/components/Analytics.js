@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Area, AreaChart } from 'recharts';
 
@@ -6,14 +6,14 @@ const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="bg-gray-900/95 border border-white/10 rounded-xl p-3 shadow-2xl text-sm">
-      <p className="text-white font-semibold mb-1">Test #{label}</p>
+    <div className="surface rounded-xl p-3 shadow-2xl text-sm">
+      <p className="text-primary font-semibold mb-1">Test #{label}</p>
       {payload.map((p, i) => (
         <p key={i} style={{ color: p.color }} className="font-medium">
           {p.name}: {p.value}{p.name === 'accuracy' ? '%' : ''}
         </p>
       ))}
-      {d.level && <p className="text-gray-500 text-xs mt-1">{d.level} · {d.timeMode}</p>}
+      {d.level && <p className="text-muted text-xs mt-1">{d.level} · {d.timeMode}</p>}
     </div>
   );
 };
@@ -50,26 +50,26 @@ const Analytics = () => {
   }));
 
   const STAT_CARDS = [
-    { label: 'Total Tests',   value: stats.total,   color: 'text-violet-400', icon: '📝', bg: 'from-violet-500/10 to-purple-500/10', border: 'border-violet-500/20' },
-    { label: 'Avg WPM',       value: stats.avgWpm,  color: 'text-blue-400',   icon: '⚡', bg: 'from-blue-500/10 to-cyan-500/10',     border: 'border-blue-500/20'   },
-    { label: 'Best WPM',      value: stats.bestWpm, color: 'text-amber-400',  icon: '🏆', bg: 'from-amber-500/10 to-orange-500/10',  border: 'border-amber-500/20'  },
-    { label: 'Avg Accuracy',  value: `${stats.avgAcc}%`, color: 'text-emerald-400', icon: '🎯', bg: 'from-emerald-500/10 to-teal-500/10', border: 'border-emerald-500/20' },
+    { label: 'Total Tests',  value: stats.total,        color: 'text-violet-500', icon: '📝', bg: 'from-violet-500/10 to-purple-500/10', border: 'border-violet-500/20' },
+    { label: 'Avg WPM',      value: stats.avgWpm,       color: 'text-blue-500',   icon: '💨', bg: 'from-blue-500/10 to-cyan-500/10',     border: 'border-blue-500/20'   },
+    { label: 'Best WPM',     value: stats.bestWpm,      color: 'text-amber-500',  icon: '🏆', bg: 'from-amber-500/10 to-orange-500/10',  border: 'border-amber-500/20'  },
+    { label: 'Avg Accuracy', value: `${stats.avgAcc}%`, color: 'text-emerald-500',icon: '🎯', bg: 'from-emerald-500/10 to-teal-500/10',  border: 'border-emerald-500/20'},
     {
       label: 'Improvement',
       value: `${stats.improvement >= 0 ? '+' : ''}${stats.improvement}`,
-      color: stats.improvement >= 0 ? 'text-emerald-400' : 'text-red-400',
-      icon: stats.improvement >= 0 ? '📈' : '📉',
-      bg: stats.improvement >= 0 ? 'from-emerald-500/10 to-teal-500/10' : 'from-red-500/10 to-pink-500/10',
-      border: stats.improvement >= 0 ? 'border-emerald-500/20' : 'border-red-500/20',
+      color: stats.improvement >= 0 ? 'text-emerald-500' : 'text-red-500',
+      icon:  stats.improvement >= 0 ? '📈' : '📉',
+      bg:    stats.improvement >= 0 ? 'from-emerald-500/10 to-teal-500/10' : 'from-red-500/10 to-pink-500/10',
+      border:stats.improvement >= 0 ? 'border-emerald-500/20' : 'border-red-500/20',
     },
   ];
 
-  const gridStyle = { stroke: 'rgba(255,255,255,0.05)' };
-  const axisStyle = { fill: '#6b7280', fontSize: 11 };
+  const gridStyle = { stroke: 'var(--border)' };
+  const axisStyle = { fill: 'var(--text-muted)', fontSize: 11 };
 
   return (
     <div className="max-w-5xl mx-auto animate-fade-up">
-      <div className="rounded-3xl overflow-hidden bg-white/5 border border-white/10 backdrop-blur">
+      <div className="rounded-3xl overflow-hidden surface">
         {/* Header */}
         <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 p-8 text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-black/10" />
@@ -87,16 +87,15 @@ const Analytics = () => {
               <div key={i} className={`p-4 rounded-2xl bg-gradient-to-br ${s.bg} border ${s.border} text-center card-lift animate-fade-up delay-${(i+1)*100}`}>
                 <div className="text-2xl mb-1">{s.icon}</div>
                 <div className={`text-2xl font-black tabular-nums ${s.color}`}>{s.value}</div>
-                <div className="text-gray-400 text-xs mt-0.5 font-medium">{s.label}</div>
+                <div className="text-secondary text-xs mt-0.5 font-medium">{s.label}</div>
               </div>
             ))}
           </div>
 
           {chartData.length > 0 ? (
             <div className="space-y-6">
-              {/* WPM Area Chart */}
-              <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
-                <h2 className="text-white font-bold text-lg mb-4">⚡ WPM Progress</h2>
+              <div className="surface p-5 rounded-2xl">
+                <h2 className="text-primary font-bold text-lg mb-4">💨 WPM Progress</h2>
                 <ResponsiveContainer width="100%" height={240}>
                   <AreaChart data={chartData}>
                     <defs>
@@ -114,9 +113,8 @@ const Analytics = () => {
                 </ResponsiveContainer>
               </div>
 
-              {/* Accuracy Bar Chart */}
-              <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
-                <h2 className="text-white font-bold text-lg mb-4">🎯 Accuracy Progress</h2>
+              <div className="surface p-5 rounded-2xl">
+                <h2 className="text-primary font-bold text-lg mb-4">🎯 Accuracy Progress</h2>
                 <ResponsiveContainer width="100%" height={240}>
                   <BarChart data={chartData}>
                     <defs>
@@ -137,34 +135,33 @@ const Analytics = () => {
           ) : (
             <div className="text-center py-16">
               <div className="text-6xl mb-4 animate-float">📈</div>
-              <p className="text-gray-300 text-xl font-bold">No data yet</p>
-              <p className="text-gray-500 mt-2">Complete some tests to see your analytics here!</p>
+              <p className="text-primary text-xl font-bold">No data yet</p>
+              <p className="text-muted mt-2">Complete some tests to see your analytics here!</p>
             </div>
           )}
 
-          {/* Recent tests table */}
           {history.length > 0 && (
             <div className="mt-6">
-              <h2 className="text-white font-bold text-lg mb-3">Recent Tests</h2>
-              <div className="overflow-x-auto rounded-2xl border border-white/10">
-                <table className="w-full text-sm">
+              <h2 className="text-primary font-bold text-lg mb-3">Recent Tests</h2>
+              <div className="overflow-x-auto rounded-2xl" style={{ border: '1px solid var(--border)' }}>
+                <table className="table-base">
                   <thead>
-                    <tr className="bg-white/5 text-gray-400 text-left">
+                    <tr>
                       {['Date', 'WPM', 'Accuracy', 'Level', 'Time'].map((h) => (
-                        <th key={h} className="px-4 py-3 font-semibold">{h}</th>
+                        <th key={h}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {[...history].reverse().slice(0, 10).map((t, i) => (
-                      <tr key={i} className="border-t border-white/5 hover:bg-white/5 transition-colors">
-                        <td className="px-4 py-3 text-gray-400 text-xs">
+                      <tr key={i}>
+                        <td className="text-xs">
                           {new Date(t.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                         </td>
-                        <td className="px-4 py-3 text-violet-400 font-bold">{t.wpm}</td>
-                        <td className="px-4 py-3 text-emerald-400 font-semibold">{t.accuracy}%</td>
-                        <td className="px-4 py-3 text-gray-300 capitalize">{t.level}</td>
-                        <td className="px-4 py-3 text-blue-400">{t.timeMode}</td>
+                        <td className="text-violet-500 font-bold">{t.wpm}</td>
+                        <td className="text-emerald-500 font-semibold">{t.accuracy}%</td>
+                        <td className="text-primary capitalize">{t.level}</td>
+                        <td className="text-blue-500">{t.timeMode}</td>
                       </tr>
                     ))}
                   </tbody>
