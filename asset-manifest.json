@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/MultiMian-TypePro/static/css/main.eaffb78a.css",
+    "main.css": "/MultiMian-TypePro/static/css/main.e9fcdbf6.css",
     "main.js": "/MultiMian-TypePro/static/js/main.ea3e25d3.js",
     "static/js/453.3d90d1c7.chunk.js": "/MultiMian-TypePro/static/js/453.3d90d1c7.chunk.js",
     "index.html": "/MultiMian-TypePro/index.html",
-    "main.eaffb78a.css.map": "/MultiMian-TypePro/static/css/main.eaffb78a.css.map",
+    "main.e9fcdbf6.css.map": "/MultiMian-TypePro/static/css/main.e9fcdbf6.css.map",
     "main.ea3e25d3.js.map": "/MultiMian-TypePro/static/js/main.ea3e25d3.js.map",
     "453.3d90d1c7.chunk.js.map": "/MultiMian-TypePro/static/js/453.3d90d1c7.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.eaffb78a.css",
+    "static/css/main.e9fcdbf6.css",
     "static/js/main.ea3e25d3.js"
   ]
 }
