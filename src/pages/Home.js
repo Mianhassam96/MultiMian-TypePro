@@ -63,7 +63,14 @@ const Home = () => (
           Type <TypingWord />
         </h1>
         <p className="text-lg sm:text-xl text-secondary max-w-2xl mx-auto mb-10 leading-relaxed">
-          MultiMian TypePro helps you master your keyboard with real-time feedback,
+          <span style={{
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontWeight: 700,
+            background: 'linear-gradient(100deg, #6366f1, #8b5cf6, #ec4899)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}>MultiMianTypePro</span> helps you master your keyboard with real-time feedback,
           beautiful analytics, and competitive leaderboards.
         </p>
 

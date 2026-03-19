@@ -148,9 +148,21 @@ function AppContent() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
               {/* Brand */}
               <div>
-                <Link to="/" className="inline-flex items-center gap-0.5 mb-3">
-                  <span className="logo-brand" style={{ fontSize: '1.15rem' }}>MultiMianTypePro</span>
-                  <span className="logo-dot" />
+                <Link to="/" className="inline-flex items-center gap-1 mb-3">
+                  <span style={{
+                    fontFamily: "'Space Grotesk', 'Plus Jakarta Sans', sans-serif",
+                    fontWeight: 700,
+                    fontSize: '1.1rem',
+                    letterSpacing: '-0.03em',
+                    background: 'linear-gradient(100deg, #6366f1 0%, #8b5cf6 25%, #a855f7 45%, #ec4899 65%, #f59e0b 85%, #6366f1 100%)',
+                    backgroundSize: '300% auto',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    animation: 'logoShimmer 4s linear infinite',
+                    display: 'inline-block',
+                  }}>MultiMianTypePro</span>
+                  <span style={{ display:'inline-block', width:5, height:5, borderRadius:'50%', background:'linear-gradient(135deg,#ec4899,#f59e0b)', boxShadow:'0 0 6px #ec4899', flexShrink:0, marginBottom:2 }} />
                 </Link>
                 <p className="text-muted text-sm leading-relaxed max-w-xs">
                   A modern typing speed platform with real-time analytics, leaderboards, and custom timers.

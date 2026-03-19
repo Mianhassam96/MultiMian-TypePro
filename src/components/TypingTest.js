@@ -222,8 +222,19 @@ const TypingTest = ({ onTestComplete }) => {
       <div className="surface rounded-3xl p-6 mb-5 animate-fade-up">
         <div className="text-center mb-6">
           <h1 className="text-4xl font-black mb-1 tracking-tight">
-            <span className="logo-brand" style={{ fontSize: '2rem' }}>MultiMianTypePro</span>
-            <span className="logo-dot" />
+            <span style={{
+              fontFamily: "'Space Grotesk', 'Plus Jakarta Sans', sans-serif",
+              fontWeight: 800,
+              fontSize: '2rem',
+              letterSpacing: '-0.04em',
+              background: 'linear-gradient(100deg, #6366f1 0%, #8b5cf6 25%, #a855f7 45%, #ec4899 65%, #f59e0b 85%, #6366f1 100%)',
+              backgroundSize: '300% auto',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              animation: 'logoShimmer 4s linear infinite',
+              display: 'inline-block',
+            }}>MultiMianTypePro</span>
           </h1>
           <p className="text-secondary">Type Smart. Type Fast. Be a TypePro.</p>
         </div>

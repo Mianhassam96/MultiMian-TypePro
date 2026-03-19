@@ -33,9 +33,31 @@ const Navigation = () => {
         <div className="flex justify-between items-center h-16">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-0.5">
-            <span className="logo-brand logo-brand-nav">MultiMianTypePro</span>
-            <span className="logo-dot" />
+          <Link to="/" className="flex items-center gap-1">
+            <span
+              style={{
+                fontFamily: "'Space Grotesk', 'Plus Jakarta Sans', sans-serif",
+                fontWeight: 700,
+                fontSize: '1.2rem',
+                letterSpacing: '-0.03em',
+                background: 'linear-gradient(100deg, #6366f1 0%, #8b5cf6 25%, #a855f7 45%, #ec4899 65%, #f59e0b 85%, #6366f1 100%)',
+                backgroundSize: '300% auto',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                animation: 'logoShimmer 4s linear infinite',
+                display: 'inline-block',
+              }}
+            >MultiMianTypePro</span>
+            <span style={{
+              display: 'inline-block',
+              width: 6, height: 6,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #ec4899, #f59e0b)',
+              boxShadow: '0 0 8px #ec4899',
+              flexShrink: 0,
+              marginBottom: 2,
+            }} />
           </Link>
 
           {/* Desktop nav */}
