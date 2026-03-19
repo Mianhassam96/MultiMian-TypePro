@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+ import { useState, useEffect } from 'react';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 
@@ -80,11 +80,11 @@ const Leaderboard = () => {
               {filtered.slice(0, 50).map((score, i) => (
                 <div
                   key={i}
-                  className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-200 card-lift ${
-                    i === 0 ? 'bg-amber-500/10 border-amber-500/30' :
-                    i === 1 ? 'bg-gray-400/10 border-gray-400/20' :
-                    i === 2 ? 'bg-orange-500/10 border-orange-500/20' :
-                    'surface'
+                  className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-200 ${
+                    i === 0 ? 'card-premium bg-amber-500/10 border-amber-500/30' :
+                    i === 1 ? 'card-premium bg-gray-400/10 border-gray-400/20' :
+                    i === 2 ? 'card-premium bg-orange-500/10 border-orange-500/20' :
+                    'card-premium'
                   }`}
                 >
                   <div className="w-10 text-center">

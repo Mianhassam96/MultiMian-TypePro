@@ -14,8 +14,8 @@ const AboutPage = () => (
   <div className="page-wrapper">
     <div className="max-w-4xl mx-auto animate-fade-up">
       <div className="text-center mb-14">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 animate-float shadow-2xl"
-          style={{ background: 'linear-gradient(135deg, var(--brand-from), var(--brand-to))', boxShadow: '0 20px 60px var(--brand-glow)' }}>
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 animate-logo-scale font-fancy"
+          style={{ background: 'linear-gradient(135deg, #a21caf, #f59e0b, #10b981)', fontFamily: "'Montserrat Alternates', cursive" }}>
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
           </svg>
@@ -148,20 +148,9 @@ function AppContent() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
               {/* Brand */}
               <div>
-                <Link to="/" className="inline-flex items-end gap-0.5 mb-3">
-                  <span className="logo-text text-xl">MultiMian</span>
-                  <span
-                    className="text-xl font-black"
-                    style={{
-                      fontFamily: "'Syne', sans-serif",
-                      background: 'linear-gradient(120deg, #ec4899, #f59e0b)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                      letterSpacing: '-0.04em',
-                    }}
-                  >TypePro</span>
-                  <span className="inline-block w-1.5 h-1.5 rounded-full mb-1 ml-0.5" style={{ background: 'linear-gradient(135deg, var(--brand-from), #ec4899)', boxShadow: '0 0 6px var(--brand-glow)' }} />
+                <Link to="/" className="inline-flex items-center gap-0.5 mb-3">
+                  <span className="logo-brand" style={{ fontSize: '1.15rem' }}>MultiMianTypePro</span>
+                  <span className="logo-dot" />
                 </Link>
                 <p className="text-muted text-sm leading-relaxed max-w-xs">
                   A modern typing speed platform with real-time analytics, leaderboards, and custom timers.

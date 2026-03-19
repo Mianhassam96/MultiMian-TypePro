@@ -94,7 +94,7 @@ const Analytics = () => {
 
           {chartData.length > 0 ? (
             <div className="space-y-6">
-              <div className="surface p-5 rounded-2xl">
+              <div className="card-premium p-5 rounded-2xl">
                 <h2 className="text-primary font-bold text-lg mb-4">💨 WPM Progress</h2>
                 <ResponsiveContainer width="100%" height={240}>
                   <AreaChart data={chartData}>
@@ -113,7 +113,7 @@ const Analytics = () => {
                 </ResponsiveContainer>
               </div>
 
-              <div className="surface p-5 rounded-2xl">
+              <div className="card-premium p-5 rounded-2xl">
                 <h2 className="text-primary font-bold text-lg mb-4">🎯 Accuracy Progress</h2>
                 <ResponsiveContainer width="100%" height={240}>
                   <BarChart data={chartData}>

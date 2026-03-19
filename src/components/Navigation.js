@@ -32,29 +32,10 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
 
-          {/* Logo — text only, no icon */}
-          <Link to="/" className="group flex items-end gap-0.5">
-            <span className="logo-text text-2xl tracking-tight">MultiMian</span>
-            <span
-              className="text-2xl font-black tracking-tight"
-              style={{
-                fontFamily: "'Syne', sans-serif",
-                background: 'linear-gradient(120deg, #ec4899, #f59e0b)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                letterSpacing: '-0.04em',
-              }}
-            >
-              TypePro
-            </span>
-            <span
-              className="inline-block w-1.5 h-1.5 rounded-full mb-1 ml-0.5 flex-shrink-0"
-              style={{
-                background: 'linear-gradient(135deg, var(--brand-from), #ec4899)',
-                boxShadow: '0 0 8px var(--brand-glow)',
-              }}
-            />
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-0.5">
+            <span className="logo-brand logo-brand-nav">MultiMianTypePro</span>
+            <span className="logo-dot" />
           </Link>
 
           {/* Desktop nav */}

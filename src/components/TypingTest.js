@@ -222,7 +222,8 @@ const TypingTest = ({ onTestComplete }) => {
       <div className="surface rounded-3xl p-6 mb-5 animate-fade-up">
         <div className="text-center mb-6">
           <h1 className="text-4xl font-black mb-1 tracking-tight">
-            <span className="logo-text">MultiMian TypePro</span>
+            <span className="logo-brand" style={{ fontSize: '2rem' }}>MultiMianTypePro</span>
+            <span className="logo-dot" />
           </h1>
           <p className="text-secondary">Type Smart. Type Fast. Be a TypePro.</p>
         </div>

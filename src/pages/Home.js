@@ -59,7 +59,7 @@ const Home = () => (
           The #1 Typing Speed Platform
         </div>
 
-        <h1 className="text-5xl sm:text-7xl font-black text-primary mb-4 leading-tight tracking-tight">
+        <h1 className="hero-title text-5xl sm:text-7xl font-black text-primary mb-4 leading-tight">
           Type <TypingWord />
         </h1>
         <p className="text-lg sm:text-xl text-secondary max-w-2xl mx-auto mb-10 leading-relaxed">
@@ -106,7 +106,7 @@ const Home = () => (
           {FEATURES.map((f, i) => (
             <div
               key={i}
-              className="group p-6 rounded-2xl surface card-lift cursor-default animate-card"
+              className="group p-6 rounded-2xl card-premium cursor-default animate-card"
               style={{ animationDelay: `${i * 0.08}s` }}
             >
               <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${f.gradient} flex items-center justify-center text-2xl mb-4 shadow-lg group-hover:scale-110 transition-transform duration-200`}>
