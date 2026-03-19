@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.25)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <!-- Shine overlay -->
+  <rect width="64" height="64" rx="14" fill="url(#shine)"/>
+
+  <!-- Keyboard body -->
+  <rect x="8" y="22" width="48" height="26" rx="5" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
+
+  <!-- Top row keys -->
+  <rect x="12" y="26" width="6" height="5" rx="1.5" fill="white" opacity="0.85"/>
+  <rect x="20" y="26" width="6" height="5" rx="1.5" fill="white" opacity="0.85"/>
+  <rect x="28" y="26" width="6" height="5" rx="1.5" fill="white" opacity="0.85"/>
+  <rect x="36" y="26" width="6" height="5" rx="1.5" fill="white" opacity="0.85"/>
+  <rect x="44" y="26" width="8" height="5" rx="1.5" fill="white" opacity="0.85"/>
+
+  <!-- Middle row keys -->
+  <rect x="12" y="33" width="7" height="5" rx="1.5" fill="white" opacity="0.85"/>
+  <rect x="21" y="33" width="6" height="5" rx="1.5" fill="white" opacity="0.85"/>
+  <rect x="29" y="33" width="6" height="5" rx="1.5" fill="white" opacity="0.85"/>
+  <rect x="37" y="33" width="6" height="5" rx="1.5" fill="white" opacity="0.85"/>
+  <rect x="45" y="33" width="7" height="5" rx="1.5" fill="white" opacity="0.85"/>
+
+  <!-- Space bar -->
+  <rect x="16" y="40" width="32" height="5" rx="2.5" fill="white" opacity="0.9"/>
+
+  <!-- Glowing dot accent -->
+  <circle cx="52" cy="14" r="5" fill="#f59e0b" opacity="0.95"/>
+  <circle cx="52" cy="14" r="3" fill="white" opacity="0.6"/>
+</svg>
